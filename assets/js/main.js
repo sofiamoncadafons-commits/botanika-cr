@@ -404,10 +404,7 @@ function initNavigation() {
     menu.classList.toggle("show", open);
     document.body.classList.toggle("menu-open", open);
     toggle.setAttribute("aria-expanded", String(open));
-    toggle.setAttribute(
-      "aria-label",
-      open ? "Cerrar menú" : "Abrir menú"
-    );
+    toggle.setAttribute("aria-label", open ? "Cerrar menú" : "Abrir menú");
 
     const icon = $("i", toggle);
     if (icon) {
@@ -422,18 +419,14 @@ function initNavigation() {
   });
 
   /*
-   * Los enlaces del encabezado usan navegación nativa por anclas.
-   * No se usa preventDefault ni scrollIntoView, para evitar conflictos
-   * entre Safari/iPhone, Live Server y GitHub Pages.
-   */
+    Los enlaces del header usan navegación nativa por anclas.
+    No se usa preventDefault ni scrollIntoView aquí, para evitar
+    conflictos con Safari/iPhone y con otros controladores del sitio.
+  */
   menu.addEventListener("click", (event) => {
     const link = event.target.closest("a.nav-link[href^='#']");
-    if (!link) {
-      return;
-    }
-
+    if (!link) return;
     setOpen(false);
-    /* El navegador continúa con el href normalmente. */
   });
 
   document.addEventListener("click", (event) => {

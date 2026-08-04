@@ -12941,3 +12941,20 @@ img {
   gap: .45rem;
   text-align: center;
 }
+
+/*===== v6.0.1: navegación estable del header =====*/
+#inicio,
+#destacados,
+#nuevos,
+#marcas,
+#productos,
+#contacto {
+  scroll-margin-top: 88px !important;
+}
+
+#destacados,
+#nuevos,
+#marcas {
+  display: block !important;
+  visibility: visible !important;
+}
