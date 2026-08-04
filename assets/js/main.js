@@ -388,7 +388,6 @@ function toast(
 function initNavigation() {
   const toggle = $("#nav-toggle");
   const menu = $("#nav-menu");
-  const header = $("#header");
 
   if (!toggle || !menu) {
     console.warn("No se encontró el menú principal.");
@@ -405,7 +404,10 @@ function initNavigation() {
     menu.classList.toggle("show", open);
     document.body.classList.toggle("menu-open", open);
     toggle.setAttribute("aria-expanded", String(open));
-    toggle.setAttribute("aria-label", open ? "Cerrar menú" : "Abrir menú");
+    toggle.setAttribute(
+      "aria-label",
+      open ? "Cerrar menú" : "Abrir menú"
+    );
 
     const icon = $("i", toggle);
     if (icon) {
@@ -413,71 +415,25 @@ function initNavigation() {
     }
   };
 
-  const goToSection = (hash) => {
-    if (!hash || !hash.startsWith("#")) {
-      return false;
-    }
+  toggle.addEventListener("click", (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setOpen(!menu.classList.contains("show"));
+  });
 
-    const target = document.querySelector(hash);
-    if (!target) {
-      console.warn(`No se encontró la sección ${hash}.`);
-      return false;
-    }
-
-    target.hidden = false;
-    target.removeAttribute("hidden");
-
-    const headerHeight = header?.getBoundingClientRect().height || 0;
-    const targetTop = target.getBoundingClientRect().top + window.scrollY;
-    const destination = Math.max(0, targetTop - headerHeight - 12);
-
-    window.scrollTo({
-      top: destination,
-      behavior: "smooth"
-    });
-
-    target.classList.remove("section-focus-flash");
-    requestAnimationFrame(() => {
-      target.classList.add("section-focus-flash");
-      window.setTimeout(() => {
-        target.classList.remove("section-focus-flash");
-      }, 900);
-    });
-
-    if (window.history?.replaceState) {
-      window.history.replaceState(null, "", hash);
-    }
-
-    return true;
-  };
-
-  toggle.addEventListener(
-    "click",
-    (event) => {
-      event.preventDefault();
-      event.stopPropagation();
-      setOpen(!menu.classList.contains("show"));
-    },
-    { passive: false }
-  );
-
+  /*
+   * Los enlaces del encabezado usan navegación nativa por anclas.
+   * No se usa preventDefault ni scrollIntoView, para evitar conflictos
+   * entre Safari/iPhone, Live Server y GitHub Pages.
+   */
   menu.addEventListener("click", (event) => {
     const link = event.target.closest("a.nav-link[href^='#']");
-
     if (!link) {
       return;
     }
 
-    const hash = link.getAttribute("href");
-
-    event.preventDefault();
-    event.stopPropagation();
-
     setOpen(false);
-
-    requestAnimationFrame(() => {
-      goToSection(hash);
-    });
+    /* El navegador continúa con el href normalmente. */
   });
 
   document.addEventListener("click", (event) => {
