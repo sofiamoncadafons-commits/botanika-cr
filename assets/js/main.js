@@ -388,11 +388,18 @@ function toast(
 function initNavigation() {
   const toggle = $("#nav-toggle");
   const menu = $("#nav-menu");
+  const header = $("#header");
 
   if (!toggle || !menu) {
     console.warn("No se encontró el menú principal.");
     return;
   }
+
+  if (toggle.dataset.navigationReady === "true") {
+    return;
+  }
+
+  toggle.dataset.navigationReady = "true";
 
   const setOpen = (open) => {
     menu.classList.toggle("show", open);
@@ -406,33 +413,78 @@ function initNavigation() {
     }
   };
 
-  /* Un único controlador evita que iOS abra y cierre el menú en el mismo toque. */
-  toggle.addEventListener("click", (event) => {
-    event.preventDefault();
-    event.stopPropagation();
-    setOpen(!menu.classList.contains("show"));
-  });
+  const goToSection = (hash) => {
+    if (!hash || !hash.startsWith("#")) {
+      return false;
+    }
 
-  $$(".nav-link", menu).forEach((link) => {
-    link.addEventListener("click", (event) => {
-      const href = link.getAttribute("href");
+    const target = document.querySelector(hash);
+    if (!target) {
+      console.warn(`No se encontró la sección ${hash}.`);
+      return false;
+    }
 
-      if (href?.startsWith("#")) {
-        const target = $(href);
-        if (target) {
-          event.preventDefault();
-          setOpen(false);
-          target.scrollIntoView({ behavior: "smooth", block: "start" });
-          return;
-        }
-      }
+    target.hidden = false;
+    target.removeAttribute("hidden");
 
-      setOpen(false);
+    const headerHeight = header?.getBoundingClientRect().height || 0;
+    const targetTop = target.getBoundingClientRect().top + window.scrollY;
+    const destination = Math.max(0, targetTop - headerHeight - 12);
+
+    window.scrollTo({
+      top: destination,
+      behavior: "smooth"
     });
+
+    target.classList.remove("section-focus-flash");
+    requestAnimationFrame(() => {
+      target.classList.add("section-focus-flash");
+      window.setTimeout(() => {
+        target.classList.remove("section-focus-flash");
+      }, 900);
+    });
+
+    if (window.history?.replaceState) {
+      window.history.replaceState(null, "", hash);
+    }
+
+    return true;
+  };
+
+  toggle.addEventListener(
+    "click",
+    (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      setOpen(!menu.classList.contains("show"));
+    },
+    { passive: false }
+  );
+
+  menu.addEventListener("click", (event) => {
+    const link = event.target.closest("a.nav-link[href^='#']");
+
+    if (!link) {
+      return;
+    }
+
+    /*
+      Se utiliza la navegación nativa del navegador.
+      No se llama preventDefault(): Safari, Chrome y Firefox
+      procesan directamente el ancla del enlace. El CSS usa
+      scroll-margin-top para compensar el encabezado fijo.
+    */
+    setOpen(false);
   });
 
   document.addEventListener("click", (event) => {
     if (!event.target.closest(".nav")) {
+      setOpen(false);
+    }
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
       setOpen(false);
     }
   });
@@ -513,6 +565,8 @@ async function loadProducts() {
 
     populateBrands();
 
+    renderFeaturedProducts();
+    renderNewProducts();
     renderBrandShowcase();
 
     applyFilters();
@@ -1309,20 +1363,20 @@ function renderFeaturedProducts() {
   const section =
     $("#destacados");
 
-  if (
-    featuredProducts.length === 0
-  ) {
-    container.innerHTML = "";
-
-    if (section) {
-      section.hidden = true;
-    }
-
-    return;
-  }
-
   if (section) {
     section.hidden = false;
+    section.removeAttribute("hidden");
+  }
+
+  if (featuredProducts.length === 0) {
+    container.innerHTML = `
+      <div class="empty-message home-section-empty">
+        <i class="bx bx-star"></i>
+        <h3>Próximamente productos destacados</h3>
+        <p>Estamos preparando una selección especial para usted.</p>
+      </div>
+    `;
+    return;
   }
 
   container.innerHTML =
@@ -1356,20 +1410,20 @@ function renderNewProducts() {
   const section =
     $("#nuevos");
 
-  if (
-    newProducts.length === 0
-  ) {
-    container.innerHTML = "";
-
-    if (section) {
-      section.hidden = true;
-    }
-
-    return;
-  }
-
   if (section) {
     section.hidden = false;
+    section.removeAttribute("hidden");
+  }
+
+  if (newProducts.length === 0) {
+    container.innerHTML = `
+      <div class="empty-message home-section-empty">
+        <i class="bx bx-gift"></i>
+        <h3>Próximamente novedades</h3>
+        <p>Muy pronto encontrará nuevos productos en esta sección.</p>
+      </div>
+    `;
+    return;
   }
 
   container.innerHTML =
@@ -1410,23 +1464,22 @@ function renderBrandShowcase() {
           )
       );
 
-  if (brands.length === 0) {
-    container.innerHTML = "";
-    container.closest(
-      ".brands-section"
-    )?.setAttribute(
-      "hidden",
-      ""
-    );
-
-    return;
+  const brandsSection = container.closest(".brands-section");
+  if (brandsSection) {
+    brandsSection.hidden = false;
+    brandsSection.removeAttribute("hidden");
   }
 
-  container.closest(
-    ".brands-section"
-  )?.removeAttribute(
-    "hidden"
-  );
+  if (brands.length === 0) {
+    container.innerHTML = `
+      <div class="empty-message home-section-empty">
+        <i class="bx bx-purchase-tag-alt"></i>
+        <h3>Marcas en preparación</h3>
+        <p>Las marcas aparecerán aquí conforme se actualice el catálogo.</p>
+      </div>
+    `;
+    return;
+  }
 
   container.innerHTML =
     brands
@@ -4294,6 +4347,30 @@ function initEvents() {
     );
 
 
+  /*===== LLAMADOS DEL HOME =====*/
+
+  document.addEventListener(
+    "click",
+    (event) => {
+      const link = event.target.closest(
+        "[data-home-quick-filter]"
+      );
+
+      if (!link) {
+        return;
+      }
+
+      const quickFilter =
+        link.dataset.homeQuickFilter ||
+        "all";
+
+      window.setTimeout(() => {
+        setQuickFilter(quickFilter);
+      }, 80);
+    }
+  );
+
+
   /*===== MARCAS DEL HOME =====*/
 
   $("#brands-showcase")
@@ -5044,6 +5121,8 @@ renderSkeletonProducts();
   window.__botanikaStarted =
     true;
 
+  initReliableSectionNavigation();
+
   initNavigation();
 
   initHeroCarousel();
@@ -5126,6 +5205,59 @@ function initHeaderScrollRefinement() {
   update();
 }
 
+
+
+/*==================================
+  NAVEGACIÓN INTERNA DEFINITIVA
+  Usa delegación en fase de captura para evitar que otros
+  controladores o capas visuales bloqueen Destacados,
+  Novedades y Marcas.
+==================================*/
+function initReliableSectionNavigation() {
+  if (document.documentElement.dataset.reliableNavigation === "true") {
+    return;
+  }
+
+  document.documentElement.dataset.reliableNavigation = "true";
+
+  document.addEventListener(
+    "click",
+    (event) => {
+      const link = event.target.closest(
+        'a.nav-link[href="#destacados"], a.nav-link[href="#nuevos"], a.nav-link[href="#marcas"], a.nav-link[href="#productos"], a.nav-link[href="#contacto"], a.nav-link[href="#inicio"]'
+      );
+
+      if (!link) return;
+
+      const hash = link.getAttribute("href");
+      const target = hash ? document.querySelector(hash) : null;
+      if (!target) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+
+      target.hidden = false;
+      target.removeAttribute("hidden");
+
+      const menu = document.querySelector("#nav-menu");
+      const toggle = document.querySelector("#nav-toggle");
+      menu?.classList.remove("show");
+      document.body.classList.remove("menu-open");
+      toggle?.setAttribute("aria-expanded", "false");
+      const icon = toggle?.querySelector("i");
+      if (icon) icon.className = "bx bx-menu";
+
+      const headerHeight = document.querySelector("#header")?.offsetHeight || 64;
+      const top = target.getBoundingClientRect().top + window.scrollY - headerHeight - 14;
+      window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+
+      try {
+        history.replaceState(null, "", hash);
+      } catch (_) {}
+    },
+    true
+  );
+}
 
 function initPremiumHeader() {
   const header =

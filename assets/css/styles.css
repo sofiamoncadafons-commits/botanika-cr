@@ -12744,3 +12744,200 @@ img {
     touch-action: none;
   }
 }
+
+
+/*==================================
+  BOTANIKA CR v5.7.0
+  HOME COMERCIAL PREMIUM
+==================================*/
+.home-commercial-section {
+  position: relative;
+  overflow: hidden;
+}
+
+.home-commercial-section::before {
+  content: "";
+  position: absolute;
+  width: 240px;
+  height: 240px;
+  right: -110px;
+  top: 22px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(231,176,170,.18), rgba(231,176,170,0) 70%);
+  pointer-events: none;
+}
+
+.featured-section {
+  background: linear-gradient(180deg, #fffdfb 0%, #f8f5f2 100%);
+}
+
+.new-products-section {
+  background: linear-gradient(180deg, #f7f2ee 0%, #fffaf7 100%);
+}
+
+.home-product-grid {
+  position: relative;
+  z-index: 1;
+}
+
+.section-cta {
+  display: flex;
+  justify-content: center;
+  margin-top: 1.6rem;
+}
+
+.section-cta .button {
+  min-width: 220px;
+}
+
+.section-cta .button i {
+  font-size: 1.2rem;
+  transition: transform .2s ease;
+}
+
+.section-cta .button:hover i {
+  transform: translateX(4px);
+}
+
+.brands-section {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 12% 28%, rgba(231,176,170,.18), transparent 28%),
+    radial-gradient(circle at 88% 78%, rgba(84,91,85,.11), transparent 30%),
+    linear-gradient(180deg, #f8f5f2, #efe8e3);
+}
+
+.brands-section .section-head {
+  position: relative;
+  z-index: 1;
+}
+
+.brands-showcase {
+  position: relative;
+  z-index: 1;
+}
+
+.brand-pill {
+  min-height: 66px;
+  padding: .9rem 1rem;
+  border-color: rgba(84,91,85,.12);
+  border-radius: 18px;
+  background: rgba(255,253,251,.88);
+  backdrop-filter: blur(8px);
+}
+
+.brand-pill span {
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: .92rem;
+}
+
+.brand-pill:hover,
+.brand-pill.is-active {
+  border-color: rgba(201,130,125,.72);
+  color: #3f4741;
+  background: #fff;
+  box-shadow: 0 12px 26px rgba(48,44,41,.10);
+}
+
+@media (max-width: 760px) {
+  .home-commercial-section .section-head,
+  .brands-section .section-head {
+    padding-inline: 1rem;
+  }
+
+  .home-product-grid {
+    grid-template-columns: repeat(2, minmax(0,1fr));
+  }
+
+  .section-cta {
+    margin-top: 1.1rem;
+    padding-inline: 1rem;
+  }
+
+  .section-cta .button {
+    width: 100%;
+    max-width: 360px;
+  }
+}
+
+@media (max-width: 430px) {
+  .brand-pill {
+    min-height: 58px;
+  }
+}
+
+/*===== NAVEGACIÓN POR ANCLAS v5.7.3 =====*/
+#inicio,
+#destacados,
+#nuevos,
+#marcas,
+#productos,
+#contacto {
+  scroll-margin-top: 5.5rem;
+}
+
+/* Evita un salto visual vacío mientras termina de cargar productos.json. */
+.home-commercial-section .home-product-grid:empty,
+.brands-section .brands-showcase:empty {
+  min-height: 7rem;
+}
+
+@media (max-width: 760px) {
+  #inicio,
+  #destacados,
+  #nuevos,
+  #marcas,
+  #productos,
+  #contacto {
+    scroll-margin-top: 4.75rem;
+  }
+}
+
+
+/*===== NAVEGACIÓN HEADER v5.7.4 =====*/
+.nav-link {
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+#destacados,
+#nuevos,
+#marcas {
+  transition: box-shadow .35s ease, background-color .35s ease;
+}
+
+.section-focus-flash {
+  box-shadow: inset 0 3px 0 rgba(185, 128, 104, .62);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* v5.7.6 — navegación y secciones comerciales siempre accesibles */
+#destacados,
+#nuevos,
+#marcas,
+#productos,
+#contacto {
+  scroll-margin-top: 88px !important;
+}
+
+#destacados[hidden],
+#nuevos[hidden],
+#marcas[hidden] {
+  display: block !important;
+}
+
+.home-section-empty {
+  grid-column: 1 / -1;
+  min-height: 180px;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: .45rem;
+  text-align: center;
+}

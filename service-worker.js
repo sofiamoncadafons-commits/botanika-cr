@@ -1,4 +1,4 @@
-const CACHE_NAME = "botanika-cr-v5-6-2";
+const CACHE_NAME = "botanika-v5.7.6";
 
 const STATIC_ASSETS = [
   "./",
@@ -43,46 +43,35 @@ self.addEventListener("fetch", (event) => {
   }
 
   const url = new URL(request.url);
+  const isAppAsset =
+    url.pathname.endsWith("/") ||
+    url.pathname.endsWith("/index.html") ||
+    url.pathname.endsWith("/assets/css/styles.css") ||
+    url.pathname.endsWith("/assets/js/main.js") ||
+    url.pathname.endsWith("/assets/data/productos.json");
 
-  if (url.pathname.endsWith("/assets/data/productos.json")) {
+  if (isAppAsset) {
     event.respondWith(
       fetch(request)
         .then((response) => {
           const copy = response.clone();
-
-          caches
-            .open(CACHE_NAME)
-            .then((cache) => cache.put(request, copy));
-
+          caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
           return response;
         })
         .catch(() => caches.match(request))
     );
-
     return;
   }
 
   event.respondWith(
-    caches.match(request).then((cached) => {
-      if (cached) {
-        return cached;
-      }
-
-      return fetch(request).then((response) => {
-        if (
-          response &&
-          response.status === 200 &&
-          response.type === "basic"
-        ) {
+    caches.match(request).then((cached) =>
+      cached || fetch(request).then((response) => {
+        if (response && response.status === 200 && response.type === "basic") {
           const copy = response.clone();
-
-          caches
-            .open(CACHE_NAME)
-            .then((cache) => cache.put(request, copy));
+          caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
         }
-
         return response;
-      });
-    })
+      })
+    )
   );
 });
