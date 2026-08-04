@@ -468,13 +468,16 @@ function initNavigation() {
       return;
     }
 
-    /*
-      Se utiliza la navegación nativa del navegador.
-      No se llama preventDefault(): Safari, Chrome y Firefox
-      procesan directamente el ancla del enlace. El CSS usa
-      scroll-margin-top para compensar el encabezado fijo.
-    */
+    const hash = link.getAttribute("href");
+
+    event.preventDefault();
+    event.stopPropagation();
+
     setOpen(false);
+
+    requestAnimationFrame(() => {
+      goToSection(hash);
+    });
   });
 
   document.addEventListener("click", (event) => {
@@ -5121,8 +5124,6 @@ renderSkeletonProducts();
   window.__botanikaStarted =
     true;
 
-  initReliableSectionNavigation();
-
   initNavigation();
 
   initHeroCarousel();
@@ -5206,58 +5207,6 @@ function initHeaderScrollRefinement() {
 }
 
 
-
-/*==================================
-  NAVEGACIÓN INTERNA DEFINITIVA
-  Usa delegación en fase de captura para evitar que otros
-  controladores o capas visuales bloqueen Destacados,
-  Novedades y Marcas.
-==================================*/
-function initReliableSectionNavigation() {
-  if (document.documentElement.dataset.reliableNavigation === "true") {
-    return;
-  }
-
-  document.documentElement.dataset.reliableNavigation = "true";
-
-  document.addEventListener(
-    "click",
-    (event) => {
-      const link = event.target.closest(
-        'a.nav-link[href="#destacados"], a.nav-link[href="#nuevos"], a.nav-link[href="#marcas"], a.nav-link[href="#productos"], a.nav-link[href="#contacto"], a.nav-link[href="#inicio"]'
-      );
-
-      if (!link) return;
-
-      const hash = link.getAttribute("href");
-      const target = hash ? document.querySelector(hash) : null;
-      if (!target) return;
-
-      event.preventDefault();
-      event.stopPropagation();
-
-      target.hidden = false;
-      target.removeAttribute("hidden");
-
-      const menu = document.querySelector("#nav-menu");
-      const toggle = document.querySelector("#nav-toggle");
-      menu?.classList.remove("show");
-      document.body.classList.remove("menu-open");
-      toggle?.setAttribute("aria-expanded", "false");
-      const icon = toggle?.querySelector("i");
-      if (icon) icon.className = "bx bx-menu";
-
-      const headerHeight = document.querySelector("#header")?.offsetHeight || 64;
-      const top = target.getBoundingClientRect().top + window.scrollY - headerHeight - 14;
-      window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
-
-      try {
-        history.replaceState(null, "", hash);
-      } catch (_) {}
-    },
-    true
-  );
-}
 
 function initPremiumHeader() {
   const header =
