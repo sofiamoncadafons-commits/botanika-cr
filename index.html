@@ -1,66 +1,670 @@
 <!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Botanika CR | Catálogo</title>
+  <meta name="description" content="Catálogo de maquillaje, skincare y belleza de Botanika CR.">
+  <link href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/styles.css?v=20260804-561">
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#545b55">
+  <meta name="application-name" content="Botanika CR">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Botanika">
+  <link rel="apple-touch-icon" href="assets/icons/botanika-192.png">
+</head>
+<body>
+  <header class="header" id="header">
+    <nav class="nav container">
+      <a href="#inicio" class="brand">
+        <img src="assets/img/logo-botanika.png" alt="Botanika CR">
+        <span>BOTANIKA <strong>CR</strong></span>
+      </a>
 
-        <!-- ===== BOXICONS ===== -->
-        <link href='https://cdn.jsdelivr.net/npm/boxicons@2.0.5/css/boxicons.min.css' rel='stylesheet'>
+      <div class="nav-menu" id="nav-menu">
+        <a href="#inicio" class="nav-link">Inicio</a>
+        <a href="#productos" class="nav-link">Productos</a>
+        <a href="#productos" class="nav-link">Productos</a>
+        <a href="#contacto" class="nav-link">Contacto</a>
+      </div>
 
-        <!-- ===== CSS ===== -->
-        <link rel="stylesheet" href="assets/css/styles.css">
+      <div class="nav-actions">
+        <button id="favorites-button" class="icon-button" type="button" aria-label="Favoritos">
+          <i class="bx bx-heart"></i>
+          <span id="favorites-count" class="counter">0</span>
+        </button>
 
-        <title>Responsive Ecommerce Website</title>
-    </head>
-    <body>
-        <!--===== HEADER =====-->
-        <header class="l-header">
-            
-        </header>
+        <button id="cart-button" class="icon-button" type="button" aria-label="Carrito">
+          <i class="bx bx-shopping-bag"></i>
+          <span id="cart-count" class="counter">0</span>
+        </button>
 
-        <main class="l-main">
-            <!--===== HOME =====-->
-            <section class="home" id="home">
-                
-            </section>
+        <button id="nav-toggle" class="icon-button nav-toggle" type="button" aria-label="Menú" aria-expanded="false" aria-controls="nav-menu">
+          <i class="bx bx-menu"></i>
+        </button>
+      </div>
+    </nav>
+  </header>
 
-            <!--===== COLLECTION =====-->
-            <section class="collection section">
-                
-            </section>
+  <main>
+    <section id="inicio" class="hero-carousel hero-carousel--premium" aria-label="Promociones Botanika">
+      <div class="hero-carousel__shell">
+        <div class="hero-carousel__viewport">
 
-            <!--===== FEATURED PRODUCTS =====-->
-            <section class="featured section" id="featured">
-                
-            </section>
+          <article class="hero-premium-slide hero-premium-slide--welcome is-active" data-hero-slide>
+            <div class="hero-premium-slide__decor hero-premium-slide__decor--one"></div>
+            <div class="hero-premium-slide__decor hero-premium-slide__decor--two"></div>
 
-            <!--===== OFFER =====-->
-            <section class="offer section">
-                
-            </section>
+            <div class="container hero-premium-slide__grid">
+              <div class="hero-premium-slide__copy">
+                <span class="hero-premium-kicker">Belleza consciente</span>
+                <h1>Frescura y elegancia para <span>resaltar su esencia</span></h1>
+                <p>Descubra maquillaje y skincare cuidadosamente seleccionados para acompañar su rutina diaria.</p>
 
-            <!--===== NEW ARRIVALS =====-->
-            <section class="featured section" id="new">
-                
-            </section>
+                <div class="hero-premium-actions">
+                  <a href="#productos" class="button">Ver catálogo</a>
+                  <a href="#productos" class="button outline">Ver productos</a>
+                </div>
+              </div>
 
-            <!--===== NEWSLETTER =====-->
-            <section class="newsletter section" id="suscribe">
-                
-            </section>
+              <div class="hero-premium-stage">
+                <img
+                  class="hero-premium-art"
+                  src="assets/img/carousel/carousel-bienvenida.png"
+                  alt="Identidad visual Botanika"
+                >
+              </div>
+            </div>
+          </article>
 
-            <!--===== SPONSORS =====-->
-            <section class="sponsors section">
-                
-            </section>
-        </main>
+          <article class="hero-premium-slide hero-premium-slide--new" data-hero-slide aria-hidden="true">
+            <div class="hero-premium-slide__decor hero-premium-slide__decor--one"></div>
+            <div class="hero-premium-slide__decor hero-premium-slide__decor--two"></div>
 
-        <!--===== FOOTER =====-->
-        <footer class="footer section">
-            
-        </footer>
+            <div class="container hero-premium-slide__grid">
+              <div class="hero-premium-slide__copy">
+                <span class="hero-premium-badge hero-premium-badge--new">
+                  <i class="bx bx-sparkles"></i>
+                  Recién llegados
+                </span>
 
-        <!--===== MAIN JS =====-->
-        <script src="assets/js/main.js"></script>
-    </body>
+                <h2>Conozca las últimas <span>novedades Botanika</span></h2>
+                <p>Productos recién agregados para renovar su colección y descubrir nuevas opciones de belleza.</p>
+
+                <div class="hero-premium-actions">
+                  <a href="#productos" class="button" data-carousel-filter="new">Ver productos nuevos</a>
+                  <a href="#productos" class="button outline">Ver todo</a>
+                </div>
+              </div>
+
+              <div class="hero-premium-stage">
+                <img
+                  class="hero-premium-art"
+                  src="assets/img/carousel/carousel-nuevos.png"
+                  alt="Productos nuevos Botanika"
+                >
+              </div>
+            </div>
+          </article>
+
+          <article class="hero-premium-slide hero-premium-slide--featured" data-hero-slide aria-hidden="true">
+            <div class="hero-premium-slide__decor hero-premium-slide__decor--one"></div>
+            <div class="hero-premium-slide__decor hero-premium-slide__decor--two"></div>
+
+            <div class="container hero-premium-slide__grid">
+              <div class="hero-premium-slide__copy">
+                <span class="hero-premium-badge hero-premium-badge--featured">
+                  <i class="bx bx-star"></i>
+                  Selección especial
+                </span>
+
+                <h2>Nuestros productos <span>más destacados</span></h2>
+                <p>Una selección recomendada por su calidad, acabado y preferencia entre nuestros clientes.</p>
+
+                <div class="hero-premium-actions">
+                  <a href="#productos" class="button" data-carousel-filter="featured">Ver destacados</a>
+                  <a href="#productos" class="button outline">Explorar catálogo</a>
+                </div>
+              </div>
+
+              <div class="hero-premium-stage">
+                <img
+                  class="hero-premium-art"
+                  src="assets/img/carousel/carousel-destacados.png"
+                  alt="Productos destacados Botanika"
+                >
+              </div>
+            </div>
+          </article>
+
+          <article class="hero-premium-slide hero-premium-slide--whatsapp" data-hero-slide aria-hidden="true">
+            <div class="hero-premium-slide__decor hero-premium-slide__decor--one"></div>
+            <div class="hero-premium-slide__decor hero-premium-slide__decor--two"></div>
+
+            <div class="container hero-premium-slide__grid">
+              <div class="hero-premium-slide__copy">
+                <span class="hero-premium-badge hero-premium-badge--whatsapp">
+                  <i class="bx bxl-whatsapp"></i>
+                  Asesoría personalizada
+                </span>
+
+                <h2>Le ayudamos a <span>elegir mejor</span></h2>
+                <p>Converse con nosotros y reciba recomendaciones según sus gustos, necesidades y presupuesto.</p>
+
+                <div class="hero-premium-actions">
+                  <a
+                    href="https://wa.me/50671214468"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="button hero-premium-whatsapp"
+                  >
+                    <i class="bx bxl-whatsapp"></i>
+                    Hablar por WhatsApp
+                  </a>
+                </div>
+              </div>
+
+              <div class="hero-premium-stage hero-premium-stage--help">
+                <img
+                  class="hero-premium-art"
+                  src="assets/img/carousel/carousel-whatsapp.png"
+                  alt="Asesoría Botanika por WhatsApp"
+                >
+              </div>
+            </div>
+          </article>
+
+        </div>
+
+        <button
+          type="button"
+          class="hero-carousel__arrow hero-carousel__arrow--prev"
+          id="hero-prev"
+          aria-label="Promoción anterior"
+        >
+          <i class="bx bx-chevron-left"></i>
+        </button>
+
+        <button
+          type="button"
+          class="hero-carousel__arrow hero-carousel__arrow--next"
+          id="hero-next"
+          aria-label="Siguiente promoción"
+        >
+          <i class="bx bx-chevron-right"></i>
+        </button>
+
+        <div class="hero-carousel__dots" id="hero-dots" aria-label="Seleccionar promoción">
+          <button type="button" class="is-active" data-hero-dot="0" aria-label="Bienvenida"></button>
+          <button type="button" data-hero-dot="1" aria-label="Productos nuevos"></button>
+          <button type="button" data-hero-dot="2" aria-label="Productos destacados"></button>
+          <button type="button" data-hero-dot="3" aria-label="Asesoría por WhatsApp"></button>
+        </div>
+      </div>
+    </section>
+
+    <section id="productos" class="section products-section">
+      <div class="section-head">
+        <span class="eyebrow">Catálogo Botanika</span>
+        <h2>Nuestros productos</h2>
+        <p id="catalog-status">Cargando catálogo…</p>
+      </div>
+
+      <div class="container controls">
+        <div class="smart-search" role="search">
+          <div class="smart-search__field">
+            <i class="bx bx-search" aria-hidden="true"></i>
+
+            <input
+              id="product-search"
+              type="search"
+              placeholder="Buscar producto, marca, categoría o tono"
+              autocomplete="off"
+              aria-label="Buscar productos"
+              aria-controls="search-suggestions"
+              aria-expanded="false"
+            >
+
+            <button
+              id="clear-search"
+              type="button"
+              hidden
+              aria-label="Limpiar búsqueda"
+              class="smart-search__clear"
+            >
+              <i class="bx bx-x"></i>
+            </button>
+          </div>
+
+          <div
+            id="search-suggestions"
+            class="smart-search-panel"
+            hidden
+          ></div>
+        </div>
+
+        <select id="category-filter">
+          <option value="all">Todas las categorías</option>
+          <option value="Maquillaje">Maquillaje</option>
+          <option value="Skincare">Skincare</option>
+          <option value="Accesorios">Accesorios</option>
+          <option value="Cuidado corporal">Cuidado corporal</option>
+          <option value="Cabello">Cabello</option>
+        </select>
+
+        <select id="brand-filter"><option value="all">Todas las marcas</option></select>
+
+        <select id="price-filter">
+          <option value="all">Todos los precios</option>
+          <option value="0-5000">Hasta ₡5.000</option>
+          <option value="5001-10000">₡5.001 – ₡10.000</option>
+          <option value="10001-15000">₡10.001 – ₡15.000</option>
+          <option value="15001+">Más de ₡15.000</option>
+        </select>
+
+        <select id="product-sort">
+          <option value="default">Orden recomendado</option>
+          <option value="price-asc">Precio: menor a mayor</option>
+          <option value="price-desc">Precio: mayor a menor</option>
+          <option value="name-asc">Nombre: A–Z</option>
+        </select>
+
+        <select id="page-size">
+          <option value="8">Mostrar 8</option>
+          <option value="12" selected>Mostrar 12</option>
+          <option value="24">Mostrar 24</option>
+          <option value="all">Mostrar todos</option>
+        </select>
+      </div>
+
+      <div class="container quick-filters" id="quick-filters">
+        <button type="button" class="quick-filter is-active" data-quick-filter="all">Todos</button>
+        <button type="button" class="quick-filter" data-quick-filter="new"><i class="bx bx-sparkles"></i> Nuevos</button>
+        <button type="button" class="quick-filter" data-quick-filter="featured"><i class="bx bx-star"></i> Destacados</button>
+        <button type="button" class="quick-filter" data-quick-filter="offer"><i class="bx bx-purchase-tag"></i> Ofertas</button>
+        <button type="button" class="quick-filter" data-quick-filter="available"><i class="bx bx-check-circle"></i> Disponibles</button>
+      </div>
+
+      <div id="products-container" class="container product-grid"></div>
+
+      <div class="container pagination-wrap">
+        <p id="pagination-info"></p>
+        <nav id="pagination" class="pagination"></nav>
+      </div>
+    </section>
+
+    <section id="beneficios" class="section benefits-section">
+      <div class="section-head">
+        <span class="eyebrow">La experiencia Botanika</span>
+        <h2>¿Por qué elegir Botanika?</h2>
+        <p>Una experiencia de compra cercana, confiable y pensada para usted.</p>
+      </div>
+
+      <div class="container benefits-grid">
+        <article class="benefit-card">
+          <span class="benefit-card__icon">
+            <i class="bx bx-leaf"></i>
+          </span>
+          <h3>Selección consciente</h3>
+          <p>Productos elegidos cuidadosamente para acompañar su rutina de belleza.</p>
+        </article>
+
+        <article class="benefit-card">
+          <span class="benefit-card__icon">
+            <i class="bx bx-package"></i>
+          </span>
+          <h3>Envíos en Costa Rica</h3>
+          <p>Coordinamos su entrega de manera práctica y segura.</p>
+        </article>
+
+        <article class="benefit-card">
+          <span class="benefit-card__icon">
+            <i class="bx bx-message-rounded-dots"></i>
+          </span>
+          <h3>Asesoría personalizada</h3>
+          <p>Le ayudamos a encontrar el producto ideal según sus necesidades.</p>
+        </article>
+
+        <article class="benefit-card">
+          <span class="benefit-card__icon">
+            <i class="bx bx-gift"></i>
+          </span>
+          <h3>Presentación cuidada</h3>
+          <p>Cada pedido se prepara con atención para que recibirlo sea especial.</p>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer footer-premium">
+    <div class="container footer-premium__grid">
+
+      <div class="footer-premium__brand">
+        <a href="#inicio" class="footer-premium__logo">
+          <img src="assets/img/logo-botanika.png" alt="Botanika CR">
+        </a>
+
+        <p class="footer-premium__tagline">
+          Belleza consciente, fresca y elegante, pensada para resaltar su esencia natural.
+        </p>
+
+        <div class="footer-socials" aria-label="Redes sociales">
+          <a
+            href="https://www.facebook.com/share/1BdiZBTaPZ/?mibextid=wwXIfr"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Facebook de Botanika CR"
+          >
+            <i class="bx bxl-facebook"></i>
+          </a>
+
+          <a
+            href="https://www.instagram.com/botanika.cr_?igsh=MXBzMDl1ZDl5dmNhZw%3D%3D&utm_source=qr"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Instagram de Botanika CR"
+          >
+            <i class="bx bxl-instagram"></i>
+          </a>
+
+          <a
+            href="https://wa.me/50671214468"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="WhatsApp de Botanika CR"
+          >
+            <i class="bx bxl-whatsapp"></i>
+          </a>
+        </div>
+      </div>
+
+      <div class="footer-premium__column">
+        <h3>Explorar</h3>
+        <a href="#inicio">Inicio</a>
+        <a href="#productos">Categorías</a>
+        <a href="#productos">Productos</a>
+        <a href="#productos">Marcas disponibles</a>
+      </div>
+
+      <div class="footer-premium__column">
+        <h3>Atención</h3>
+        <a
+          href="https://wa.me/50671214468"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <i class="bx bxl-whatsapp"></i>
+          WhatsApp: 7121-4468
+        </a>
+
+        <span>
+          <i class="bx bx-map"></i>
+          Costa Rica
+        </span>
+
+        <span>
+          <i class="bx bx-time-five"></i>
+          Atención personalizada
+        </span>
+      </div>
+
+      <div class="footer-premium__column footer-premium__confidence">
+        <h3>Compra con confianza</h3>
+
+        <div>
+          <i class="bx bx-badge-check"></i>
+          <span>Productos cuidadosamente seleccionados</span>
+        </div>
+
+        <div>
+          <i class="bx bx-package"></i>
+          <span>Coordinación de entregas</span>
+        </div>
+
+        <div>
+          <i class="bx bx-heart"></i>
+          <span>Asesoría cercana y personalizada</span>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="container footer-premium__bottom">
+      <p class="footer-copy"></p>
+
+      <span class="footer-premium__signature">
+        Botanika CR · Belleza con esencia
+      </span>
+    </div>
+  </footer>
+
+  <div id="overlay" class="overlay" hidden></div>
+
+  <aside id="cart-drawer" class="cart-drawer cart-drawer--premium" aria-hidden="true">
+    <div class="drawer-head drawer-head--premium">
+      <div>
+        <small>Botanika CR</small>
+        <h2>Mi carrito</h2>
+        <p id="cart-header-summary">Su carrito está vacío.</p>
+      </div>
+
+      <button
+        id="cart-close"
+        type="button"
+        class="icon-button"
+        aria-label="Cerrar carrito"
+      >
+        <i class="bx bx-x"></i>
+      </button>
+    </div>
+
+    <div id="cart-items" class="cart-items"></div>
+
+    <div class="drawer-foot drawer-foot--premium">
+      <div class="cart-summary">
+        <div class="cart-summary__row">
+          <span>Productos</span>
+          <strong id="cart-items-count">0</strong>
+        </div>
+
+        <div class="cart-summary__row cart-summary__row--total">
+          <span>Subtotal</span>
+          <strong id="cart-total">₡0</strong>
+        </div>
+
+        <p class="cart-summary__note">
+          El costo de envío se coordina por WhatsApp.
+        </p>
+      </div>
+
+      <div class="cart-footer-actions">
+        <button
+          id="cart-continue"
+          type="button"
+          class="button outline cart-continue-button"
+        >
+          <i class="bx bx-left-arrow-alt"></i>
+          Seguir comprando
+        </button>
+
+        <button
+          id="cart-whatsapp"
+          type="button"
+          class="whatsapp-button cart-whatsapp-button"
+          disabled
+        >
+          <i class="bx bxl-whatsapp"></i>
+          Continuar por WhatsApp
+        </button>
+      </div>
+
+      <button
+        id="cart-clear"
+        type="button"
+        class="clear-button cart-clear-button"
+        disabled
+      >
+        <i class="bx bx-trash"></i>
+        Vaciar carrito
+      </button>
+    </div>
+  </aside>
+
+  <aside id="favorites-drawer" class="favorites-drawer" aria-hidden="true">
+    <div class="drawer-head">
+      <div><small>Botanika CR</small><h2>Sus favoritos</h2></div>
+      <button id="favorites-close" type="button" class="icon-button" aria-label="Cerrar favoritos">
+        <i class="bx bx-x"></i>
+      </button>
+    </div>
+    <div id="favorites-items" class="favorites-items"></div>
+  </aside>
+
+  <div id="product-modal" class="modal" hidden>
+    <div class="modal-backdrop" data-close-modal></div>
+    <article class="modal-dialog">
+      <button type="button" class="icon-button modal-close" data-close-modal><i class="bx bx-x"></i></button>
+      <div class="modal-media modal-media--gallery">
+        <button
+          id="modal-image-button"
+          type="button"
+          class="modal-image-button"
+          aria-label="Ampliar imagen"
+        >
+          <img id="modal-image" src="assets/img/logo-botanika.png" alt="">
+          <span class="modal-image-hint" aria-hidden="true">
+            <i class="bx bx-zoom-in"></i>
+          </span>
+        </button>
+
+        <div
+          id="modal-gallery"
+          class="modal-gallery"
+          aria-label="Galería del producto"
+        ></div>
+      </div>
+      <div class="modal-content modal-content--premium">
+        <div class="modal-heading">
+          <div class="modal-heading__identity">
+            <span id="modal-brand" class="eyebrow"></span>
+            <span id="modal-subcategory" class="modal-category"></span>
+          </div>
+
+          <span id="modal-availability" class="modal-availability">
+            <i class="bx bx-check-circle"></i>
+            Disponible
+          </span>
+        </div>
+
+        <h2 id="modal-name"></h2>
+
+        <div class="modal-price-row modal-price-row--showcase">
+          <div>
+            <small>Precio</small>
+            <strong id="modal-price" class="modal-price"></strong>
+          </div>
+
+          <span class="modal-tax-note">
+            <i class="bx bx-shield-quarter"></i>
+            Compra coordinada por WhatsApp
+          </span>
+        </div>
+
+        <p id="modal-description" class="modal-description"></p>
+
+        <div id="modal-colors" class="modal-colors"></div>
+
+        <p id="modal-selected-tone" class="modal-selected-tone" hidden>
+          <i class="bx bx-palette"></i>
+          Tono seleccionado:
+          <strong></strong>
+        </p>
+
+        <div class="modal-trust modal-trust--showcase">
+          <div>
+            <i class="bx bx-badge-check"></i>
+            <span>
+              <strong>Producto original</strong>
+              <small>Seleccionado cuidadosamente</small>
+            </span>
+          </div>
+
+          <div>
+            <i class="bx bx-package"></i>
+            <span>
+              <strong>Envíos en Costa Rica</strong>
+              <small>Coordinación personalizada</small>
+            </span>
+          </div>
+
+          <div>
+            <i class="bx bx-message-rounded-dots"></i>
+            <span>
+              <strong>Asesoría directa</strong>
+              <small>Le ayudamos a elegir</small>
+            </span>
+          </div>
+        </div>
+
+        <div class="modal-advice">
+          <i class="bx bx-message-rounded-dots"></i>
+          <span>
+            ¿Tiene dudas? Escríbanos y con gusto le asesoramos.
+          </span>
+        </div>
+
+        <div class="modal-actions modal-actions--premium">
+          <button
+            id="modal-add-cart"
+            type="button"
+            class="button modal-cart-icon"
+            aria-label="Agregar producto al carrito"
+            title="Agregar al carrito"
+          >
+            <i class="bx bxs-shopping-bag"></i>
+            <span>Agregar al carrito</span>
+          </button>
+
+          <a
+            id="modal-whatsapp"
+            href="#"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="button modal-whatsapp-button"
+          >
+            <i class="bx bxl-whatsapp"></i>
+            Consultar por WhatsApp
+          </a>
+        </div>
+
+        <div class="related">
+          <div class="related-heading">
+            <span class="eyebrow">También podría interesarle</span>
+            <h3>Productos relacionados</h3>
+          </div>
+          <div id="related-products" class="related-grid"></div>
+        </div>
+      </div>
+    </article>
+  </div>
+
+  <div id="image-zoom" class="image-zoom" hidden>
+    <div class="image-zoom__backdrop" data-close-zoom></div>
+    <div class="image-zoom__content">
+      <button type="button" class="icon-button image-zoom__close" data-close-zoom aria-label="Cerrar imagen ampliada"><i class="bx bx-x"></i></button>
+      <img id="zoom-image" src="assets/img/logo-botanika.png" alt="">
+    </div>
+  </div>
+
+  <a href="https://wa.me/50671214468" target="_blank" rel="noopener noreferrer" class="whatsapp-float">
+    <i class="bx bxl-whatsapp"></i>
+  </a>
+
+  <div id="toast" class="toast"></div>
+
+  <script src="assets/js/main.js?v=20260804-561"></script>
+</body>
 </html>

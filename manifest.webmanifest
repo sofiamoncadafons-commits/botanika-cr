@@ -1,0 +1,25 @@
+{
+  "name": "Botanika CR",
+  "short_name": "Botanika",
+  "description": "Catálogo de belleza Botanika CR.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f8f3ef",
+  "theme_color": "#545b55",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "assets/icons/botanika-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "assets/icons/botanika-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

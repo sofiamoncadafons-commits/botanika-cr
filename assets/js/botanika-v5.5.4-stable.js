@@ -1,3 +1,7 @@
+console.info(
+  "Botanika CR v5.5.4 STABLE — base real del usuario"
+);
+
 /*==================================
   BOTANIKA CR
   CONFIGURACIÓN GENERAL
@@ -59,9 +63,7 @@ const state = {
 
   modalProductId: null,
 
-  modalColor: "",
-
-  modalQuantity: 1
+  modalColor: ""
 };
 
 
@@ -72,14 +74,36 @@ const state = {
 const $ = (
   selector,
   parent = document
-) => parent.querySelector(selector);
+) => {
+  const scope =
+    parent &&
+    typeof parent.querySelector ===
+      "function"
+      ? parent
+      : document;
+
+  return scope.querySelector(
+    selector
+  );
+};
 
 const $$ = (
   selector,
   parent = document
-) => [
-  ...parent.querySelectorAll(selector)
-];
+) => {
+  const scope =
+    parent &&
+    typeof parent.querySelectorAll ===
+      "function"
+      ? parent
+      : document;
+
+  return [
+    ...scope.querySelectorAll(
+      selector
+    )
+  ];
+};
 
 
 /*==================================
@@ -153,150 +177,6 @@ function normalize(
     )
     .toLowerCase()
     .trim();
-}
-
-
-/*===== MOTOR DE BÚSQUEDA INTELIGENTE =====*/
-function searchTokens(value = "") {
-  return normalize(value)
-    .split(/\s+/)
-    .filter(Boolean);
-}
-
-
-function productColorText(product = {}) {
-  if (!Array.isArray(product.colors)) {
-    return "";
-  }
-
-  return product.colors
-    .map((color) => {
-      if (typeof color === "string") {
-        return color;
-      }
-
-      return [
-        color?.name,
-        color?.label,
-        color?.tone,
-        color?.shade,
-        color?.value,
-        color?.code
-      ]
-        .filter(Boolean)
-        .join(" ");
-    })
-    .join(" ");
-}
-
-
-function productSearchText(product = {}) {
-  const tags = Array.isArray(product.tags)
-    ? product.tags.join(" ")
-    : product.tags || "";
-
-  const labels = [
-    product.featured ? "destacado recomendados mas vendido" : "",
-    product.new ? "nuevo novedad reciente" : "",
-    product.available ? "disponible en existencia" : "agotado no disponible"
-  ].join(" ");
-
-  return normalize(
-    [
-      product.name,
-      product.brand,
-      product.category,
-      product.subcategory,
-      product.description,
-      productColorText(product),
-      tags,
-      product.keywords,
-      product.finish,
-      product.coverage,
-      product.skinType,
-      product.size,
-      product.presentation,
-      labels
-    ]
-      .filter(Boolean)
-      .join(" ")
-  );
-}
-
-
-function productMatchesSearch(product, value) {
-  const tokens = searchTokens(value);
-
-  if (!tokens.length) {
-    return true;
-  }
-
-  const haystack = productSearchText(product);
-
-  return tokens.every((token) =>
-    haystack.includes(token)
-  );
-}
-
-
-function productSearchScore(product, value) {
-  const query = normalize(value);
-  const tokens = searchTokens(value);
-  const name = normalize(product.name);
-  const brand = normalize(product.brand);
-  const subcategory = normalize(product.subcategory);
-  const colors = normalize(productColorText(product));
-
-  let score = 0;
-
-  if (name === query) score += 120;
-  if (name.startsWith(query)) score += 70;
-  if (name.includes(query)) score += 45;
-  if (brand === query) score += 50;
-  if (brand.includes(query)) score += 28;
-  if (subcategory.includes(query)) score += 20;
-  if (colors.includes(query)) score += 18;
-
-  tokens.forEach((token) => {
-    if (name.startsWith(token)) score += 14;
-    else if (name.includes(token)) score += 9;
-    if (brand.includes(token)) score += 6;
-    if (colors.includes(token)) score += 4;
-  });
-
-  if (product.featured) score += 2;
-  if (product.available) score += 1;
-
-  return score;
-}
-
-
-function searchMatchContext(product, value) {
-  const query = normalize(value);
-  const colors = Array.isArray(product.colors)
-    ? product.colors
-        .map((color) =>
-          typeof color === "string"
-            ? color
-            : color?.name || color?.label || color?.tone || color?.shade || ""
-        )
-        .filter(Boolean)
-    : [];
-
-  const matchedColor = colors.find((color) =>
-    normalize(color).includes(query) ||
-    searchTokens(value).some((token) => normalize(color).includes(token))
-  );
-
-  if (matchedColor) {
-    return `Tono: ${matchedColor}`;
-  }
-
-  if (normalize(product.brand).includes(query)) {
-    return `Marca: ${product.brand}`;
-  }
-
-  return product.subcategory || product.category || "Producto";
 }
 
 
@@ -778,9 +658,19 @@ function applyFilters() {
     const search =
       normalize(state.filters.search);
 
-    products = products.filter((product) =>
-      productMatchesSearch(product, search)
-    );
+    products = products.filter(product => {
+
+      return normalize(
+        [
+          product.name,
+          product.brand,
+          product.category,
+          product.subcategory,
+          product.description
+        ].join(" ")
+      ).includes(search);
+
+    });
 
   }
 
@@ -1845,8 +1735,7 @@ function cartKey(
 function addToCart(
   id,
   color = "",
-  card = null,
-  quantity = 1
+  card = null
 ) {
   const product =
     productById(id);
@@ -1862,11 +1751,6 @@ function addToCart(
 
     return;
   }
-
-  const safeQuantity = Math.max(
-    1,
-    Math.min(99, Number(quantity) || 1)
-  );
 
   const key =
     cartKey(
@@ -1889,7 +1773,7 @@ function addToCart(
       : product.image;
 
   if (existing) {
-    existing.quantity += safeQuantity;
+    existing.quantity += 1;
   } else {
     state.cart.push({
       key,
@@ -1917,7 +1801,7 @@ function addToCart(
         image ||
         CONFIG.fallbackImage,
 
-      quantity: safeQuantity
+      quantity: 1
     });
   }
 
@@ -2397,10 +2281,6 @@ function openModal(id) {
   state.modalProductId =
     id;
 
-  state.modalQuantity = 1;
-
-  updateModalQuantity();
-
   const colors =
     Array.isArray(
       product.colors
@@ -2487,8 +2367,8 @@ function openModal(id) {
 
     modalAddButton.innerHTML =
       isAvailable
-        ? '<i class="bx bxs-shopping-bag"></i><span>Agregar al carrito</span>'
-        : '<i class="bx bx-x-circle"></i><span>Producto agotado</span>';
+        ? '<i class="bx bxs-shopping-bag"></i>'
+        : '<i class="bx bx-x-circle"></i>';
   }
 
   if (modalBrand) {
@@ -2735,7 +2615,9 @@ function updateModalSelectedTone(
   tone
 ) {
   const container =
-    $("#modal-selected-tone");
+    document.getElementById(
+      "modal-selected-tone"
+    );
 
   if (!container) {
     return;
@@ -2750,15 +2632,11 @@ function updateModalSelectedTone(
     return;
   }
 
-  if (!tone) {
-    container.hidden = true;
-    value.textContent = "";
+  container.hidden =
+    !tone;
 
-    return;
-  }
-
-  container.hidden = false;
-  value.textContent = tone;
+  value.textContent =
+    tone || "";
 }
 
 
@@ -2948,30 +2826,6 @@ function renderRelatedProducts(
       .join("");
 }
 
-
-
-
-/*==================================
-  CANTIDAD DEL MODAL
-==================================*/
-
-function updateModalQuantity() {
-  const value = $("#modal-quantity");
-  const minus = $("#modal-quantity-minus");
-
-  state.modalQuantity = Math.max(
-    1,
-    Math.min(99, Number(state.modalQuantity) || 1)
-  );
-
-  if (value) {
-    value.textContent = String(state.modalQuantity);
-  }
-
-  if (minus) {
-    minus.disabled = state.modalQuantity <= 1;
-  }
-}
 
 /*==================================
   ACTUALIZAR WHATSAPP DEL MODAL
@@ -3391,17 +3245,20 @@ function renderSearchSuggestions(
     return;
   }
 
-  const allMatches = state.products
-    .filter((product) =>
-      productMatchesSearch(product, search)
-    )
-    .sort(
-      (a, b) =>
-        productSearchScore(b, search) -
-        productSearchScore(a, search)
-    );
-
-  const matches = allMatches.slice(0, 6);
+  const matches =
+    state.products
+      .filter(
+        (product) =>
+          normalize(
+            [
+              product.name,
+              product.brand,
+              product.category,
+              product.subcategory
+            ].join(" ")
+          ).includes(search)
+      )
+      .slice(0, 5);
 
   if (
     matches.length === 0
@@ -3426,7 +3283,7 @@ function renderSearchSuggestions(
   container.innerHTML = `
     <div class="smart-search-panel__head">
       <span>Sugerencias</span>
-      <small>${allMatches.length} ${allMatches.length === 1 ? "resultado" : "resultados"}</small>
+      <small>${matches.length}</small>
     </div>
 
     <div class="smart-search-results">
@@ -3469,7 +3326,8 @@ function renderSearchSuggestions(
 
                 <span class="smart-search-item__details">
                   <span>${escapeHTML(
-                    searchMatchContext(product, value)
+                    product.category ||
+                    ""
                   )}</span>
 
                   <b>${formatPrice(
@@ -4958,23 +4816,6 @@ function initEvents() {
     );
 
 
-
-
-  /*===== CANTIDAD DEL MODAL =====*/
-
-  $("#modal-quantity-minus")
-    ?.addEventListener("click", () => {
-      state.modalQuantity = Math.max(1, state.modalQuantity - 1);
-      updateModalQuantity();
-    });
-
-  $("#modal-quantity-plus")
-    ?.addEventListener("click", () => {
-      state.modalQuantity = Math.min(99, state.modalQuantity + 1);
-      updateModalQuantity();
-    });
-
-
   /*===== AGREGAR DESDE EL MODAL =====*/
 
   $("#modal-add-cart")
@@ -4989,9 +4830,7 @@ function initEvents() {
 
         addToCart(
           state.modalProductId,
-          state.modalColor,
-          null,
-          state.modalQuantity
+          state.modalColor
         );
       }
     );
@@ -5093,31 +4932,6 @@ function initEvents() {
   INICIAR BOTANIKA
 ==================================*/
 
-function registerBotanikaServiceWorker() {
-  if (
-    !("serviceWorker" in navigator) ||
-    !window.isSecureContext
-  ) {
-    return;
-  }
-
-  window.addEventListener(
-    "load",
-    () => {
-      navigator.serviceWorker
-        .register("./service-worker.js")
-        .catch((error) => {
-          console.warn(
-            "No se pudo registrar el service worker:",
-            error
-          );
-        });
-    },
-    {
-      once: true
-    }
-  );
-}
 
 
 async function startBotanika() {
