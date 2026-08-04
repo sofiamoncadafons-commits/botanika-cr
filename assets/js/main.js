@@ -386,102 +386,62 @@ function toast(
 ==================================*/
 
 function initNavigation() {
-  const toggle =
-    $("#nav-toggle");
+  const toggle = $("#nav-toggle");
+  const menu = $("#nav-menu");
 
-  const menu =
-    $("#nav-menu");
-
-  if (
-    !toggle ||
-    !menu
-  ) {
-    console.warn(
-      "No se encontró el menú principal."
-    );
-
+  if (!toggle || !menu) {
+    console.warn("No se encontró el menú principal.");
     return;
   }
 
-  toggle.onclick = () => {
-    const isOpen =
-      menu.classList.toggle(
-        "show"
-      );
+  const setOpen = (open) => {
+    menu.classList.toggle("show", open);
+    document.body.classList.toggle("menu-open", open);
+    toggle.setAttribute("aria-expanded", String(open));
+    toggle.setAttribute("aria-label", open ? "Cerrar menú" : "Abrir menú");
 
-    const icon =
-      $("i", toggle);
-
-    toggle.setAttribute(
-      "aria-expanded",
-      String(isOpen)
-    );
-
+    const icon = $("i", toggle);
     if (icon) {
-      icon.classList.toggle(
-        "bx-menu",
-        !isOpen
-      );
-
-      icon.classList.toggle(
-        "bx-x",
-        isOpen
-      );
+      icon.className = open ? "bx bx-x" : "bx bx-menu";
     }
   };
 
+  /* Un único controlador evita que iOS abra y cierre el menú en el mismo toque. */
+  toggle.addEventListener("click", (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setOpen(!menu.classList.contains("show"));
+  });
 
-  $$(".nav-link").forEach(
-    (link) => {
-      link.onclick = (
-        event
-      ) => {
-        const href =
-          link.getAttribute(
-            "href"
-          );
+  $$(".nav-link", menu).forEach((link) => {
+    link.addEventListener("click", (event) => {
+      const href = link.getAttribute("href");
 
-        if (
-          href?.startsWith("#")
-        ) {
-          const target =
-            $(href);
-
-          if (target) {
-            event.preventDefault();
-
-            target.scrollIntoView({
-              behavior: "smooth",
-
-              block: "start"
-            });
-          }
+      if (href?.startsWith("#")) {
+        const target = $(href);
+        if (target) {
+          event.preventDefault();
+          setOpen(false);
+          target.scrollIntoView({ behavior: "smooth", block: "start" });
+          return;
         }
+      }
 
-        menu.classList.remove(
-          "show"
-        );
+      setOpen(false);
+    });
+  });
 
-        toggle.setAttribute(
-          "aria-expanded",
-          "false"
-        );
-
-        const icon =
-          $("i", toggle);
-
-        if (icon) {
-          icon.classList.add(
-            "bx-menu"
-          );
-
-          icon.classList.remove(
-            "bx-x"
-          );
-        }
-      };
+  document.addEventListener("click", (event) => {
+    if (!event.target.closest(".nav")) {
+      setOpen(false);
     }
-  );
+  });
+
+  window.addEventListener("resize", () => {
+    if (window.innerWidth > 760) {
+      setOpen(false);
+    }
+  });
 }
 
 
@@ -3752,55 +3712,7 @@ function initEvents() {
   );
 
 
-  /*===== MENÚ RESPONSIVE =====*/
-
-  $("#nav-toggle")
-    ?.addEventListener(
-      "click",
-      (event) => {
-        event.stopPropagation();
-        toggleMobileMenu();
-      }
-    );
-
-  $("#nav-menu")
-    ?.addEventListener(
-      "click",
-      (event) => {
-        if (
-          event.target.closest(
-            ".nav-link"
-          )
-        ) {
-          closeMobileMenu();
-        }
-      }
-    );
-
-  document.addEventListener(
-    "click",
-    (event) => {
-      if (
-        !event.target.closest(
-          ".nav"
-        )
-      ) {
-        closeMobileMenu();
-      }
-    }
-  );
-
-  window.addEventListener(
-    "resize",
-    () => {
-      if (
-        window.innerWidth >
-        760
-      ) {
-        closeMobileMenu();
-      }
-    }
-  );
+  /* El menú responsive se inicializa exclusivamente en initNavigation(). */
 
 
   /*===== AUDITORÍA DE LAYOUT =====*/

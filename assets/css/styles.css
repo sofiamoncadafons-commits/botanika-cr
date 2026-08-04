@@ -12710,3 +12710,37 @@ img {
     background: #545b55 !important;
   }
 }
+
+
+/*===== CORRECCIÓN MENÚ MÓVIL iOS v5.6.2 =====*/
+.nav-toggle {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (max-width: 760px) {
+  .nav-menu {
+    z-index: 120;
+    visibility: hidden;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateX(16px);
+    transition: right .3s ease, opacity .22s ease, transform .3s ease, visibility 0s linear .3s;
+    -webkit-overflow-scrolling: touch;
+    overflow-y: auto;
+  }
+
+  .nav-menu.show {
+    right: 0;
+    visibility: visible;
+    pointer-events: auto;
+    opacity: 1;
+    transform: translateX(0);
+    transition-delay: 0s;
+  }
+
+  body.menu-open {
+    overflow: hidden;
+    touch-action: none;
+  }
+}

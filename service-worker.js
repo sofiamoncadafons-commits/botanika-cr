@@ -1,4 +1,4 @@
-const CACHE_NAME = "botanika-cr-v5-6-1";
+const CACHE_NAME = "botanika-cr-v5-6-2";
 
 const STATIC_ASSETS = [
   "./",
