@@ -234,7 +234,7 @@
       "price": 12800,
       "currency": "CRC",
       "description": "BB Cream hidratante. Disponible en varios tonos.",
-      "image": "assets/img/products/BB Cream Moringa Ceramide.jpg",
+      "image": "assets/img/products/bb-cream-moringa-ceramide.jpg",
       "available": true,
       "featured": false,
       "new": false,
@@ -354,7 +354,7 @@
       "price": 6000,
       "currency": "CRC",
       "description": "Corrector para neutralizar imperfecciones.",
-      "image": "assets/img/products/Corrector de Color Lavish Moira.jpg",
+      "image": "assets/img/products/corrector-de-color-lavish-moira.jpg",
       "available": true,
       "featured": true,
       "new": false,
@@ -418,7 +418,8 @@
       "available": true,
       "featured": true,
       "new": false,
-      "colors": []
+      "colors": [],
+      "priority": 40
     },
     {
       "id": "combo-maquillaje-diario",
@@ -449,7 +450,8 @@
           "productId": "corrector-dolce-bella",
           "quantity": 1
         }
-      ]
+      ],
+      "priority": 10
     },
     {
       "id": "combo-cobertura-perfecta",
@@ -476,7 +478,8 @@
           "productId": "corrector-liquido-flawless-beauty-creations",
           "quantity": 1
         }
-      ]
+      ],
+      "priority": 20
     }
   ]
 }

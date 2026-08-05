@@ -756,6 +756,87 @@ function resetSecondaryFilters() {
 }
 
 
+function productPriority(product = {}) {
+  const priority = Number(product.priority);
+
+  return Number.isFinite(priority)
+    ? priority
+    : 9999;
+}
+
+
+function compareProductNames(a = {}, b = {}) {
+  return String(a.name || "").localeCompare(
+    String(b.name || ""),
+    "es",
+    { sensitivity: "base" }
+  );
+}
+
+
+function compareProductPriority(a = {}, b = {}) {
+  return (
+    productPriority(a) -
+      productPriority(b) ||
+    compareProductNames(a, b)
+  );
+}
+
+
+function recommendedProductGroup(product = {}) {
+  if (isCombo(product)) {
+    return 0;
+  }
+
+  if (
+    productFlag(
+      product,
+      "offer",
+      "oferta",
+      "isOffer"
+    )
+  ) {
+    return 1;
+  }
+
+  if (
+    productFlag(
+      product,
+      "featured",
+      "destacado",
+      "isFeatured"
+    )
+  ) {
+    return 2;
+  }
+
+  if (
+    productFlag(
+      product,
+      "new",
+      "nuevo",
+      "isNew"
+    )
+  ) {
+    return 3;
+  }
+
+  if (product.available !== false) {
+    return 4;
+  }
+
+  return 5;
+}
+
+
+function compareRecommendedProducts(a = {}, b = {}) {
+  return (
+    recommendedProductGroup(a) -
+      recommendedProductGroup(b) ||
+    compareProductPriority(a, b)
+  );
+}
+
 function applyFilters() {
   pulseProductsBeforeUpdate();
 
@@ -899,60 +980,74 @@ function applyFilters() {
         (a, b) =>
           a.name.localeCompare(
             b.name,
-            "es"
+            "es",
+            { sensitivity: "base" }
           )
       );
 
       break;
 
-    default:
+    case "new-first":
 
-      products.sort(
-        (a, b) => {
-
-          const scoreA =
-            Number(
-              productFlag(
-                a,
-                "featured",
-                "destacado",
-                "isFeatured"
-              )
-            ) * 2 +
-            Number(
-              productFlag(
-              a,
-              "new",
-              "nuevo",
-              "isNew"
-            )
-            );
-
-          const scoreB =
-            Number(
-              productFlag(
-                b,
-                "featured",
-                "destacado",
-                "isFeatured"
-              )
-            ) * 2 +
-            Number(
-              productFlag(
+      products.sort((a, b) => {
+        const newDifference =
+          Number(
+            productFlag(
               b,
               "new",
               "nuevo",
               "isNew"
             )
-            );
-
-          return (
-            scoreB -
-            scoreA
+          ) -
+          Number(
+            productFlag(
+              a,
+              "new",
+              "nuevo",
+              "isNew"
+            )
           );
 
-        }
-      );
+        return (
+          newDifference ||
+          compareProductPriority(a, b)
+        );
+      });
+
+      break;
+
+    case "offers-first":
+
+      products.sort((a, b) => {
+        const offerDifference =
+          Number(
+            productFlag(
+              b,
+              "offer",
+              "oferta",
+              "isOffer"
+            )
+          ) -
+          Number(
+            productFlag(
+              a,
+              "offer",
+              "oferta",
+              "isOffer"
+            )
+          );
+
+        return (
+          offerDifference ||
+          compareProductPriority(a, b)
+        );
+      });
+
+      break;
+
+    default:
+
+      products.sort(compareRecommendedProducts);
 
   }
 

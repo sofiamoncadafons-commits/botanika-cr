@@ -6,7 +6,7 @@
   <title>Botanika CR | Catálogo</title>
   <meta name="description" content="Catálogo de maquillaje, skincare y belleza de Botanika CR.">
   <link href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/styles.css?v=6.1.0">
+  <link rel="stylesheet" href="assets/css/styles.css?v=6.1.1">
   <link rel="manifest" href="manifest.webmanifest">
   <meta name="theme-color" content="#545b55">
   <meta name="application-name" content="Botanika CR">
@@ -265,8 +265,14 @@
           <option value="15001+">Más de ₡15.000</option>
         </select>
 
-        <select id="product-sort">
-          <option value="default">Orden recomendado</option>
+        <select
+          id="product-sort"
+          aria-label="Ordenar productos"
+          title="Ordenar productos"
+        >
+          <option value="default">Orden: recomendados</option>
+          <option value="new-first">Nuevos primero</option>
+          <option value="offers-first">Ofertas primero</option>
           <option value="price-asc">Precio: menor a mayor</option>
           <option value="price-desc">Precio: mayor a menor</option>
           <option value="name-asc">Nombre: A–Z</option>
@@ -678,6 +684,6 @@
 
   <div id="toast" class="toast"></div>
 
-  <script src="assets/js/main.js?v=6.1.0"></script>
+  <script src="assets/js/main.js?v=6.1.1"></script>
 </body>
 </html>

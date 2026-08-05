@@ -12989,3 +12989,24 @@ img {
 .modal-combo__saving del { margin-left:.25rem; }
 .modal-combo__saving strong { color:#48604f; font-size:.84rem; }
 @media (max-width:760px){ .combo-mini-list{display:none}.modal-combo{padding:.8rem}.modal-combo-item{grid-template-columns:42px 1fr auto}.modal-combo-item img{width:42px;height:42px}.modal-combo__saving{align-items:flex-start;flex-direction:column;gap:.35rem} }
+
+
+/*===== V6.1.1 ORDEN COMERCIAL DEL CATÁLOGO =====*/
+#product-sort {
+  border-color: rgba(84, 91, 85, 0.42);
+  background-color: #fffdf9;
+  color: #3f4741;
+  font-weight: 700;
+}
+
+#product-sort:focus {
+  border-color: #545b55;
+  box-shadow: 0 0 0 3px rgba(84, 91, 85, 0.12);
+  outline: none;
+}
+
+@media (max-width: 760px) {
+  #product-sort {
+    order: 4;
+  }
+}
