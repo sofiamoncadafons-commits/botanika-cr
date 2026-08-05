@@ -216,6 +216,7 @@ function productSearchText(product = {}) {
       product.skinType,
       product.size,
       product.presentation,
+      isCombo(product) ? comboResolvedItems(product).map(item => item.name).join(" ") : "",
       labels
     ]
       .filter(Boolean)
@@ -340,6 +341,30 @@ function productById(
   );
 }
 
+
+function isCombo(product = {}) {
+  return normalize(product.type) === "combo" || product.category === "Combos";
+}
+
+function comboResolvedItems(product = {}) {
+  if (!isCombo(product) || !Array.isArray(product.items)) return [];
+  return product.items.map((item) => {
+    const included = productById(item.productId);
+    const quantity = Math.max(1, Number(item.quantity) || 1);
+    return included ? { ...included, quantity } : null;
+  }).filter(Boolean);
+}
+
+function comboRegularPrice(product = {}) {
+  return comboResolvedItems(product).reduce(
+    (total, item) => total + (Number(item.price) || 0) * item.quantity,
+    0
+  );
+}
+
+function comboSaving(product = {}) {
+  return Math.max(0, comboRegularPrice(product) - (Number(product.price) || 0));
+}
 
 function imageFallback(
   image
@@ -836,6 +861,10 @@ function applyFilters() {
     products = products.filter(
       product => product.available !== false
     );
+  }
+
+  if (state.filters.quick === "combo") {
+    products = products.filter(isCombo);
   }
 
   /* ORDEN */
@@ -1457,6 +1486,10 @@ function renderBrandShowcase() {
 
 
 function getProductTagInfo(product) {
+  if (isCombo(product)) {
+    return { text: "Combo Botanika", className: "tag--combo" };
+  }
+
   if (product.available === false) {
     return {
       text: "Agotado",
@@ -1494,255 +1527,47 @@ function getProductTagInfo(product) {
 ==================================*/
 
 function productCardHTML(product) {
-  const colors =
-    Array.isArray(product.colors)
-      ? product.colors
-      : [];
-
-  const firstColor =
-    colors[0] || null;
-
-  const image =
-    firstColor?.image ||
-    product.image ||
-    CONFIG.fallbackImage;
-
-  const isFavorite =
-    state.favorites.includes(
-      product.id
-    );
-
-  const tagInfo =
-    getProductTagInfo(
-      product
-    );
+  const colors = Array.isArray(product.colors) ? product.colors : [];
+  const firstColor = colors[0] || null;
+  const image = firstColor?.image || product.image || CONFIG.fallbackImage;
+  const isFavorite = state.favorites.includes(product.id);
+  const tagInfo = getProductTagInfo(product);
+  const combo = isCombo(product);
+  const regularPrice = combo ? comboRegularPrice(product) : Number(product.oldPrice) || 0;
+  const saving = combo ? comboSaving(product) : 0;
+  const included = combo ? comboResolvedItems(product) : [];
 
   return `
-    <article
-      class="product-card ${
-        product.available === false
-          ? "product-card--sold-out"
-          : ""
-      }"
-      data-id="${escapeHTML(
-        product.id
-      )}"
-      data-color="${escapeHTML(
-        firstColor?.name || ""
-      )}"
-    >
-
+    <article class="product-card ${combo ? "product-card--combo" : ""} ${product.available === false ? "product-card--sold-out" : ""}"
+      data-id="${escapeHTML(product.id)}" data-color="${escapeHTML(firstColor?.name || "")}">
       <div class="product-media">
-
-        <button
-          type="button"
-          data-action="details"
-          aria-label="Ver detalle de ${escapeHTML(
-            product.name
-          )}"
-        >
-          <img
-            src="${escapeHTML(
-              image
-            )}"
-            alt="${escapeHTML(
-              product.name
-            )}"
-            class="product-image"
-            loading="lazy"
-          >
+        <button type="button" data-action="details" aria-label="Ver detalle de ${escapeHTML(product.name)}">
+          <img src="${escapeHTML(image)}" alt="${escapeHTML(product.name)}" class="product-image" loading="lazy">
         </button>
-
-        ${
-          tagInfo
-            ? `
-              <span
-                class="tag ${tagInfo.className}"
-              >
-                ${escapeHTML(
-                  tagInfo.text
-                )}
-              </span>
-            `
-            : ""
-        }
-
-        <button
-          type="button"
-          class="favorite ${
-            isFavorite
-              ? "active"
-              : ""
-          }"
-          data-action="favorite"
-          aria-label="${
-            isFavorite
-              ? "Quitar de favoritos"
-              : "Agregar a favoritos"
-          }"
-        >
-          <i
-            class="bx ${
-              isFavorite
-                ? "bxs-heart"
-                : "bx-heart"
-            }"
-          ></i>
+        ${tagInfo ? `<span class="tag ${tagInfo.className}">${escapeHTML(tagInfo.text)}</span>` : ""}
+        <button type="button" class="favorite ${isFavorite ? "active" : ""}" data-action="favorite"
+          aria-label="${isFavorite ? "Quitar de favoritos" : "Agregar a favoritos"}">
+          <i class="bx ${isFavorite ? "bxs-heart" : "bx-heart"}"></i>
         </button>
-
       </div>
-
       <div class="product-content">
-
-        <span class="product-brand">
-          ${escapeHTML(
-            product.brand ||
-            product.category
-          )}
-        </span>
-
-        <button
-          type="button"
-          class="product-name"
-          data-action="details"
-        >
-          ${escapeHTML(
-            product.name
-          )}
-        </button>
-
-        <span class="product-sub">
-          ${escapeHTML(
-            product.subcategory || ""
-          )}
-        </span>
-
-        <div class="product-price-wrap">
-          ${
-            Number(product.oldPrice) >
-            Number(product.price)
-              ? `
-                <span class="product-old-price">
-                  ${formatPrice(
-                    product.oldPrice,
-                    product.currency ||
-                    "CRC"
-                  )}
-                </span>
-              `
-              : ""
-          }
-
-          <strong class="product-price">
-            ${formatPrice(
-              product.price,
-              product.currency ||
-              "CRC"
-            )}
-          </strong>
+        <span class="product-brand">${escapeHTML(combo ? "Colección Botanika" : (product.brand || product.category))}</span>
+        <button type="button" class="product-name" data-action="details">${escapeHTML(product.name)}</button>
+        <span class="product-sub">${escapeHTML(combo ? `${included.length} productos incluidos` : (product.subcategory || ""))}</span>
+        ${combo ? `<div class="combo-mini-list">${included.slice(0,3).map(item => `<span><i class="bx bx-check"></i>${escapeHTML(item.name)}</span>`).join("")}</div>` : ""}
+        <div class="product-price-wrap ${combo ? "product-price-wrap--combo" : ""}">
+          ${regularPrice > Number(product.price) ? `<span class="product-old-price">${formatPrice(regularPrice, product.currency || "CRC")}</span>` : ""}
+          <strong class="product-price">${formatPrice(product.price, product.currency || "CRC")}</strong>
+          ${saving > 0 ? `<span class="combo-saving">Ahorra ${formatPrice(saving, product.currency || "CRC")}</span>` : ""}
         </div>
-
-        <div class="swatches">
-
-          ${colors
-            .slice(0, 6)
-            .map(
-              (
-                color,
-                index
-              ) => `
-                <button
-                  type="button"
-                  class="swatch ${
-                    index === 0
-                      ? "selected"
-                      : ""
-                  }"
-                  data-action="color"
-                  data-color="${escapeHTML(
-                    color.name
-                  )}"
-                  data-image="${escapeHTML(
-                    color.image ||
-                    product.image ||
-                    CONFIG.fallbackImage
-                  )}"
-                  style="--swatch: ${escapeHTML(
-                    color.value ||
-                    "#cccccc"
-                  )};"
-                  title="${escapeHTML(
-                    color.name
-                  )}"
-                  aria-label="Seleccionar color ${escapeHTML(
-                    color.name
-                  )}"
-                ></button>
-              `
-            )
-            .join("")}
-
-        </div>
-
+        ${combo ? "" : `<div class="swatches">${colors.slice(0,6).map((color,index)=>`<button type="button" class="swatch ${index===0?"selected":""}" data-action="color" data-color="${escapeHTML(color.name)}" data-image="${escapeHTML(color.image || product.image || CONFIG.fallbackImage)}" style="--swatch:${escapeHTML(color.value || "#cccccc")};" title="${escapeHTML(color.name)}" aria-label="Seleccionar color ${escapeHTML(color.name)}"></button>`).join("")}</div>`}
         <div class="product-actions">
-
-          <button
-            type="button"
-            class="add-cart add-cart-icon"
-            data-action="add-cart"
-            aria-label="${
-              product.available === false
-                ? "Producto agotado"
-                : `Agregar ${escapeHTML(product.name)} al carrito`
-            }"
-            title="${
-              product.available === false
-                ? "Producto agotado"
-                : "Agregar al carrito"
-            }"
-            ${
-              product.available === false
-                ? "disabled"
-                : ""
-            }
-          >
-            <i class="bx ${
-              product.available === false
-                ? "bx-x-circle"
-                : "bxs-shopping-bag"
-            }"></i>
-          </button>
-
-          <button
-            type="button"
-            class="details details-icon"
-            data-action="details"
-            aria-label="Ver detalle de ${escapeHTML(
-              product.name
-            )}"
-            title="Ver detalle"
-          >
-            <i class="bx bx-show"></i>
-          </button>
-
-          <button
-            type="button"
-            class="share-product"
-            data-action="share"
-            aria-label="Compartir ${escapeHTML(
-              product.name
-            )} por WhatsApp"
-            title="Compartir por WhatsApp"
-          >
-            <i class="bx bxl-whatsapp"></i>
-          </button>
-
+          <button type="button" class="add-cart add-cart-icon" data-action="add-cart" aria-label="${product.available === false ? "Producto agotado" : `Agregar ${escapeHTML(product.name)} al carrito`}" title="${product.available === false ? "Producto agotado" : (combo ? "Agregar combo" : "Agregar al carrito")}" ${product.available === false ? "disabled" : ""}><i class="bx ${product.available === false ? "bx-x-circle" : (combo ? "bx-gift" : "bxs-shopping-bag")}"></i></button>
+          <button type="button" class="details details-icon" data-action="details" aria-label="Ver detalle de ${escapeHTML(product.name)}" title="${combo ? "Ver combo" : "Ver detalle"}"><i class="bx bx-show"></i></button>
+          <button type="button" class="share-product" data-action="share" aria-label="Compartir ${escapeHTML(product.name)} por WhatsApp" title="Compartir por WhatsApp"><i class="bx bxl-whatsapp"></i></button>
         </div>
-
       </div>
-
-    </article>
-  `;
+    </article>`;
 }
 
 
@@ -1897,9 +1722,7 @@ function addToCart(
 
   renderCart();
 
-  toast(
-    "Producto agregado al carrito"
-  );
+  toast(isCombo(product) ? "Combo agregado al carrito" : "Producto agregado al carrito");
 
   openCart();
 }
@@ -2345,6 +2168,28 @@ function sendCartWhatsApp() {
   ABRIR MODAL
 ==================================*/
 
+function renderModalCombo(product) {
+  const section = $("#modal-combo");
+  if (!section) return;
+  if (!isCombo(product)) {
+    section.hidden = true;
+    return;
+  }
+  const items = comboResolvedItems(product);
+  const regular = comboRegularPrice(product);
+  const saving = comboSaving(product);
+  $("#modal-combo-count").textContent = `${items.length} productos`;
+  $("#modal-combo-items").innerHTML = items.map(item => `
+    <article class="modal-combo-item">
+      <img src="${escapeHTML(item.image || CONFIG.fallbackImage)}" alt="${escapeHTML(item.name)}">
+      <span><strong>${escapeHTML(item.name)}</strong><small>${item.quantity > 1 ? `Cantidad: ${item.quantity}` : escapeHTML(item.brand || "")}</small></span>
+      <i class="bx bx-check-circle"></i>
+    </article>`).join("");
+  $("#modal-combo-regular").textContent = formatPrice(regular, product.currency || "CRC");
+  $("#modal-combo-saving").textContent = formatPrice(saving, product.currency || "CRC");
+  section.hidden = false;
+}
+
 function openModal(id) {
   const product =
     productById(id);
@@ -2452,7 +2297,7 @@ function openModal(id) {
 
     modalAddButton.innerHTML =
       isAvailable
-        ? '<i class="bx bxs-shopping-bag"></i><span>Agregar al carrito</span>'
+        ? (isCombo(product) ? '<i class="bx bx-gift"></i><span>Agregar combo</span>' : '<i class="bx bxs-shopping-bag"></i><span>Agregar al carrito</span>')
         : '<i class="bx bx-x-circle"></i><span>Producto agotado</span>';
   }
 
@@ -2483,9 +2328,10 @@ function openModal(id) {
   }
 
   if (modalDescription) {
-    modalDescription.textContent =
-      product.description || "";
+    modalDescription.textContent = product.description || "";
   }
+
+  renderModalCombo(product);
 
   renderModalGallery(
     product,
@@ -2942,35 +2788,20 @@ function updateModalQuantity() {
   ACTUALIZAR WHATSAPP DEL MODAL
 ==================================*/
 
-function updateModalWhatsApp(
-  product
-) {
-  const button =
-    $("#modal-whatsapp");
-
-  if (
-    !button ||
-    !product
-  ) {
-    return;
+function updateModalWhatsApp(product) {
+  const button = $("#modal-whatsapp");
+  if (!button || !product) return;
+  const lines = ["Hola Botanika CR,", "", `Deseo consultar por: ${product.name}.`];
+  if (isCombo(product)) {
+    lines.push("", "El combo incluye:");
+    comboResolvedItems(product).forEach(item => lines.push(`• ${item.name}${item.quantity > 1 ? ` (x${item.quantity})` : ""}`));
+    lines.push("", `Precio del combo: ${formatPrice(product.price, product.currency || "CRC")}.`);
+    const saving = comboSaving(product);
+    if (saving > 0) lines.push(`Ahorro: ${formatPrice(saving, product.currency || "CRC")}.`);
+  } else if (state.modalColor) {
+    lines.push(`Color o tono: ${state.modalColor}.`);
   }
-
-  const lines = [
-    "Hola Botanika CR,",
-    "",
-    `Deseo consultar por: ${product.name}.`
-  ];
-
-  if (state.modalColor) {
-    lines.push(
-      `Color o tono: ${state.modalColor}.`
-    );
-  }
-
-  button.href =
-    whatsappUrl(
-      lines.join("\n")
-    );
+  button.href = whatsappUrl(lines.join("\n"));
 }
 
 
