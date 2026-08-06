@@ -6,7 +6,7 @@
   <title>Administración | Botanika CR</title>
   <meta name="robots" content="noindex,nofollow">
   <link href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="admin.css?v=7.0.0">
+  <link rel="stylesheet" href="admin.css?v=7.1.0">
 </head>
 <body>
   <div id="admin-toast" class="admin-toast" role="status" aria-live="polite"></div>
@@ -203,24 +203,79 @@
           <section id="section-import" class="admin-section" hidden>
             <div class="section-heading">
               <div>
-                <span class="admin-eyebrow">Migración inicial</span>
-                <h2>Importar catálogo actual</h2>
-                <p>Cargue en Supabase los productos y combos que todavía están en los archivos JSON.</p>
+                <span class="admin-eyebrow">Carga masiva</span>
+                <h2>Importar catálogo</h2>
+                <p>Importe productos, novedades, destacados, ofertas y combos desde Excel, o migre los JSON actuales.</p>
               </div>
+              <a class="secondary-button" href="../assets/templates/Plantilla_Importacion_Botanika_v7.1.xlsx" download>
+                <i class="bx bx-download"></i>Descargar plantilla Excel
+              </a>
             </div>
 
-            <article class="import-card">
-              <i class="bx bx-cloud-upload"></i>
-              <div>
-                <h3>Importación segura desde los JSON del sitio</h3>
-                <p>La operación utiliza <strong>upsert</strong>: crea los registros que no existen y actualiza los que tengan el mismo identificador. No elimina registros adicionales de Supabase.</p>
-                <ul>
-                  <li><code>assets/data/productos.json</code></li>
-                  <li><code>assets/data/combos.json</code></li>
-                </ul>
+            <article class="excel-import-card">
+              <div class="excel-import-card__intro">
+                <div class="excel-icon"><i class="bx bx-spreadsheet"></i></div>
+                <div>
+                  <span class="admin-eyebrow">Importación recomendada</span>
+                  <h3>Cargar catálogo desde Excel</h3>
+                  <p>Use las hojas <strong>Productos</strong>, <strong>Combos</strong> y <strong>ProductosCombo</strong>. Primero valide el archivo; nada se guarda hasta confirmar la importación.</p>
+                </div>
               </div>
-              <button id="import-json-button" class="primary-button" type="button"><i class="bx bx-import"></i>Importar ahora</button>
+
+              <div class="excel-controls">
+                <label class="file-drop" id="excel-drop-zone">
+                  <input id="excel-file" type="file" accept=".xlsx,.xls" hidden>
+                  <i class="bx bx-cloud-upload"></i>
+                  <span><strong>Seleccionar archivo Excel</strong><small>Formato .xlsx o .xls</small></span>
+                </label>
+
+                <label class="field import-mode-field">
+                  <span>Tratamiento de registros existentes</span>
+                  <select id="excel-import-mode">
+                    <option value="upsert">Crear nuevos y actualizar por ID</option>
+                    <option value="insert">Crear solamente los que no existen</option>
+                  </select>
+                </label>
+
+                <button id="validate-excel-button" class="primary-button" type="button" disabled>
+                  <i class="bx bx-check-shield"></i>Validar archivo
+                </button>
+              </div>
+
+              <div id="excel-file-summary" class="file-summary" hidden></div>
+              <div id="excel-validation-summary" class="validation-summary" hidden></div>
+
+              <div id="excel-preview" class="excel-preview" hidden>
+                <div class="preview-heading">
+                  <div><span class="admin-eyebrow">Vista previa</span><h3>Registros listos para importar</h3></div>
+                  <button id="download-error-report" class="text-button" type="button" hidden><i class="bx bx-download"></i>Descargar errores</button>
+                </div>
+                <div class="preview-tabs" role="tablist">
+                  <button class="preview-tab is-active" type="button" data-preview-sheet="products">Productos <span id="preview-products-count">0</span></button>
+                  <button class="preview-tab" type="button" data-preview-sheet="combos">Combos <span id="preview-combos-count">0</span></button>
+                  <button class="preview-tab" type="button" data-preview-sheet="items">Productos de combos <span id="preview-items-count">0</span></button>
+                  <button class="preview-tab" type="button" data-preview-sheet="errors">Errores <span id="preview-errors-count">0</span></button>
+                </div>
+                <div class="table-card excel-preview-table"><div class="table-scroll"><table><thead id="excel-preview-head"></thead><tbody id="excel-preview-body"></tbody></table></div></div>
+                <div class="excel-import-actions">
+                  <p><i class="bx bx-info-circle"></i>La importación no elimina registros que no estén en el Excel.</p>
+                  <button id="import-excel-button" class="primary-button" type="button" disabled><i class="bx bx-import"></i>Importar registros válidos</button>
+                </div>
+              </div>
             </article>
+
+            <details class="json-import-details">
+              <summary><i class="bx bx-code-curly"></i>Importar los JSON incluidos en el sitio</summary>
+              <article class="import-card">
+                <i class="bx bx-cloud-upload"></i>
+                <div>
+                  <h3>Migración desde los archivos JSON</h3>
+                  <p>Utiliza <strong>upsert</strong>: crea registros nuevos y actualiza los que tengan el mismo identificador.</p>
+                  <ul><li><code>assets/data/productos.json</code></li><li><code>assets/data/combos.json</code></li></ul>
+                </div>
+                <button id="import-json-button" class="primary-button" type="button"><i class="bx bx-import"></i>Importar JSON</button>
+              </article>
+            </details>
 
             <div id="import-result" class="import-result" hidden></div>
           </section>
@@ -254,7 +309,8 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="../assets/js/supabase-config.js?v=7.0.0"></script>
-  <script src="admin.js?v=7.0.0"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="../assets/js/supabase-config.js?v=7.1.0"></script>
+  <script src="admin.js?v=7.1.0"></script>
 </body>
 </html>

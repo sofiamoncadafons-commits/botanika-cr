@@ -1,4 +1,4 @@
-# Botanika CR v7.0.0 — Instalación del panel administrativo
+# Botanika CR v7.1.0 — Instalación del panel administrativo
 
 Esta versión agrega un panel privado para administrar el catálogo desde el navegador:
 
@@ -205,7 +205,7 @@ Cuando todo funcione localmente:
 3. Revise los cambios.
 4. Escriba como resumen:
 
-   `Panel administrativo Botanika v7.0.0`
+   `Panel administrativo Botanika v7.1.0`
 
 5. Presione **Commit to master**.
 6. Presione **Push origin**.
@@ -310,3 +310,16 @@ Revise que `01_schema_seguridad.sql` se ejecutó completo y que el usuario está
 - presione `Ctrl + F5`;
 - revise la consola del navegador;
 - cierre Safari completamente en iPhone y vuelva a abrirlo.
+
+
+## Importación desde Excel (v7.1.0)
+
+1. Entre al panel y abra **Importar catálogo**.
+2. Descargue `Plantilla_Importacion_Botanika_v7.1.xlsx`.
+3. Complete las hojas **Productos**, **Combos** y **ProductosCombo**.
+4. Seleccione el archivo en el panel y presione **Validar archivo**.
+5. Revise la vista previa y corrija cualquier error.
+6. Seleccione si desea actualizar por ID o crear solamente registros nuevos.
+7. Presione **Importar registros válidos**.
+
+La importación no elimina registros ausentes del Excel. Los productos y combos se identifican por su columna `id`. Las imágenes deben indicarse como ruta existente o URL pública; el Excel no carga archivos de imagen incrustados.

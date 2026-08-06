@@ -5,5 +5,5 @@
 -- 4. Reemplace EL-UUID-DEL-USUARIO y ejecute esta instrucción.
 
 insert into public.admin_users (user_id)
-values ('eedfe0df-43a1-4531-b8d7-6e1ebde70fca'::uuid)
+values ('EL-UUID-DEL-USUARIO'::uuid)
 on conflict (user_id) do nothing;

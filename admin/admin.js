@@ -13,7 +13,10 @@
     editingType: null,
     editingId: null,
     pendingDelete: null,
-    imageFile: null
+    imageFile: null,
+    excelFile: null,
+    excelData: { products: [], combos: [], items: [], errors: [] },
+    excelPreviewSheet: "products"
   };
 
   const $ = (selector, parent = document) => parent.querySelector(selector);
@@ -921,6 +924,286 @@
     }
   }
 
+
+  function excelHeader(value = "") {
+    return normalize(value).replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
+  }
+
+  function excelBoolean(value, defaultValue = false) {
+    if (value === true || value === 1) return true;
+    if (value === false || value === 0) return false;
+    const text = normalize(value);
+    if (["si", "sí", "true", "verdadero", "1", "x"].includes(text)) return true;
+    if (["no", "false", "falso", "0"].includes(text)) return false;
+    return defaultValue;
+  }
+
+  function excelNumber(value, defaultValue = 0) {
+    if (typeof value === "number" && Number.isFinite(value)) return value;
+    const clean = String(value ?? "").replace(/[^0-9,.-]/g, "").replace(/,(?=\d{1,2}$)/, ".").replace(/,/g, "");
+    const parsed = Number(clean);
+    return Number.isFinite(parsed) ? parsed : defaultValue;
+  }
+
+  function excelList(value = "") {
+    return String(value || "").split(/[;\n]+/).map((item) => item.trim()).filter(Boolean);
+  }
+
+  function excelColors(value = "") {
+    if (!String(value || "").trim()) return [];
+    return excelList(value).map((entry) => {
+      const [name = "", color = "", image = ""] = entry.split("|").map((item) => item.trim());
+      return { name, value: color, image };
+    }).filter((item) => item.name);
+  }
+
+  function normalizeExcelRows(sheet) {
+    if (!sheet || !window.XLSX) return [];
+    const rows = window.XLSX.utils.sheet_to_json(sheet, { defval: "", raw: false });
+    return rows.map((row, index) => {
+      const normalized = { __row: index + 2 };
+      Object.entries(row).forEach(([key, value]) => { normalized[excelHeader(key)] = value; });
+      return normalized;
+    }).filter((row) => Object.entries(row).some(([key, value]) => key !== "__row" && String(value).trim() !== ""));
+  }
+
+  function findWorkbookSheet(workbook, candidates) {
+    const names = workbook.SheetNames || [];
+    const found = names.find((name) => candidates.includes(normalize(name).replace(/\s+/g, "")));
+    return found ? workbook.Sheets[found] : null;
+  }
+
+  function validateExcelWorkbook(workbook) {
+    const errors = [];
+    const productRows = normalizeExcelRows(findWorkbookSheet(workbook, ["productos", "products"]));
+    const comboRows = normalizeExcelRows(findWorkbookSheet(workbook, ["combos", "combo"]));
+    const itemRows = normalizeExcelRows(findWorkbookSheet(workbook, ["productoscombo", "comboitems", "itemscombo", "productos_combos"]));
+
+    const productIds = new Set();
+    const products = productRows.map((row) => {
+      const id = slugify(row.id || row.codigo || row.sku || row.nombre);
+      const product = {
+        id,
+        name: String(row.nombre || row.name || "").trim(),
+        brand: String(row.marca || row.brand || "Botanika").trim(),
+        category: String(row.categoria || row.category || "").trim(),
+        subcategory: String(row.subcategoria || row.subcategory || "").trim(),
+        price: excelNumber(row.precio ?? row.price, 0),
+        currency: "CRC",
+        description: String(row.descripcion || row.description || "").trim(),
+        image: String(row.imagen || row.image || row.image_url || "").trim(),
+        available: excelBoolean(row.disponible ?? row.available, true),
+        new: excelBoolean(row.nuevo ?? row.new ?? row.is_new, false),
+        featured: excelBoolean(row.destacado ?? row.featured, false),
+        offer: excelBoolean(row.oferta ?? row.offer, false),
+        priority: Math.trunc(excelNumber(row.prioridad ?? row.priority, 100)),
+        colors: excelColors(row.colores || row.colors),
+        gallery: excelList(row.galeria || row.gallery),
+        __row: row.__row
+      };
+      if (!product.id) errors.push({ sheet: "Productos", row: row.__row, field: "id", message: "Falta el ID del producto." });
+      if (!product.name) errors.push({ sheet: "Productos", row: row.__row, field: "nombre", message: "Falta el nombre." });
+      if (!product.category) errors.push({ sheet: "Productos", row: row.__row, field: "categoria", message: "Falta la categoría." });
+      if (product.price < 0) errors.push({ sheet: "Productos", row: row.__row, field: "precio", message: "El precio no puede ser negativo." });
+      if (product.id && productIds.has(product.id)) errors.push({ sheet: "Productos", row: row.__row, field: "id", message: `ID duplicado: ${product.id}.` });
+      productIds.add(product.id);
+      return product;
+    });
+
+    const comboIds = new Set();
+    const combos = comboRows.map((row) => {
+      const id = slugify(row.id || row.codigo || row.nombre);
+      const combo = {
+        id,
+        name: String(row.nombre || row.name || "").trim(),
+        brand: "Botanika",
+        category: "Combos Botanika",
+        subcategory: String(row.subcategoria || row.subcategory || "").trim(),
+        price: excelNumber(row.precio ?? row.price, 0),
+        currency: "CRC",
+        description: String(row.descripcion || row.description || "").trim(),
+        image: String(row.imagen || row.image || row.image_url || "").trim(),
+        available: excelBoolean(row.disponible ?? row.available, true),
+        new: excelBoolean(row.nuevo ?? row.new ?? row.is_new, false),
+        featured: excelBoolean(row.destacado ?? row.featured, false),
+        offer: excelBoolean(row.oferta ?? row.offer, false),
+        priority: Math.trunc(excelNumber(row.prioridad ?? row.priority, 100)),
+        label: String(row.etiqueta || row.label || "Combo Botanika").trim(),
+        idealFor: excelList(row.ideal_para || row.idealfor || row.ideal_for),
+        benefits: excelList(row.beneficios || row.benefits),
+        usage: String(row.modo_uso || row.usage || "").trim(),
+        __row: row.__row
+      };
+      if (!combo.id) errors.push({ sheet: "Combos", row: row.__row, field: "id", message: "Falta el ID del combo." });
+      if (!combo.name) errors.push({ sheet: "Combos", row: row.__row, field: "nombre", message: "Falta el nombre." });
+      if (combo.price < 0) errors.push({ sheet: "Combos", row: row.__row, field: "precio", message: "El precio no puede ser negativo." });
+      if (combo.id && comboIds.has(combo.id)) errors.push({ sheet: "Combos", row: row.__row, field: "id", message: `ID duplicado: ${combo.id}.` });
+      comboIds.add(combo.id);
+      return combo;
+    });
+
+    const knownProducts = new Set([...state.products.map((item) => item.id), ...products.map((item) => item.id)]);
+    const knownCombos = new Set([...state.combos.map((item) => item.id), ...combos.map((item) => item.id)]);
+    const itemKeys = new Set();
+    const items = itemRows.map((row, index) => {
+      const item = {
+        comboId: slugify(row.combo_id || row.combo || row.comboid),
+        productId: slugify(row.producto_id || row.product_id || row.producto || row.productoid),
+        quantity: Math.max(1, Math.trunc(excelNumber(row.cantidad || row.quantity, 1))),
+        sortOrder: Math.max(0, Math.trunc(excelNumber(row.orden || row.sort_order, index))),
+        __row: row.__row
+      };
+      if (!item.comboId) errors.push({ sheet: "ProductosCombo", row: row.__row, field: "combo_id", message: "Falta el ID del combo." });
+      if (!item.productId) errors.push({ sheet: "ProductosCombo", row: row.__row, field: "producto_id", message: "Falta el ID del producto." });
+      if (item.comboId && !knownCombos.has(item.comboId)) errors.push({ sheet: "ProductosCombo", row: row.__row, field: "combo_id", message: `El combo ${item.comboId} no existe.` });
+      if (item.productId && !knownProducts.has(item.productId)) errors.push({ sheet: "ProductosCombo", row: row.__row, field: "producto_id", message: `El producto ${item.productId} no existe.` });
+      const key = `${item.comboId}::${item.productId}`;
+      if (itemKeys.has(key)) errors.push({ sheet: "ProductosCombo", row: row.__row, field: "producto_id", message: "Producto repetido dentro del mismo combo." });
+      itemKeys.add(key);
+      return item;
+    });
+
+    if (!productRows.length && !comboRows.length) errors.push({ sheet: "Archivo", row: "-", field: "hojas", message: "El archivo no contiene registros en Productos ni Combos." });
+    return { products, combos, items, errors };
+  }
+
+  function excelRowHasError(sheet, row) {
+    return state.excelData.errors.some((error) => error.sheet === sheet && Number(error.row) === Number(row));
+  }
+
+  function validExcelData() {
+    return {
+      products: state.excelData.products.filter((item) => !excelRowHasError("Productos", item.__row)),
+      combos: state.excelData.combos.filter((item) => !excelRowHasError("Combos", item.__row)),
+      items: state.excelData.items.filter((item) => !excelRowHasError("ProductosCombo", item.__row))
+    };
+  }
+
+  function renderExcelPreview(sheetName = state.excelPreviewSheet) {
+    state.excelPreviewSheet = sheetName;
+    $$(".preview-tab").forEach((button) => button.classList.toggle("is-active", button.dataset.previewSheet === sheetName));
+    const head = $("#excel-preview-head");
+    const body = $("#excel-preview-body");
+    const configs = {
+      products: { headers: ["Fila", "ID", "Producto", "Marca", "Categoría", "Precio", "Estado"], rows: state.excelData.products.map((item) => [item.__row, item.id, item.name, item.brand, item.category, formatPrice(item.price), excelRowHasError("Productos", item.__row) ? "Con errores" : "Válido"]) },
+      combos: { headers: ["Fila", "ID", "Combo", "Precio", "Prioridad", "Estado"], rows: state.excelData.combos.map((item) => [item.__row, item.id, item.name, formatPrice(item.price), item.priority, excelRowHasError("Combos", item.__row) ? "Con errores" : "Válido"]) },
+      items: { headers: ["Fila", "Combo", "Producto", "Cantidad", "Orden", "Estado"], rows: state.excelData.items.map((item) => [item.__row, item.comboId, item.productId, item.quantity, item.sortOrder, excelRowHasError("ProductosCombo", item.__row) ? "Con errores" : "Válido"]) },
+      errors: { headers: ["Hoja", "Fila", "Campo", "Detalle"], rows: state.excelData.errors.map((item) => [item.sheet, item.row, item.field, item.message]) }
+    };
+    const config = configs[sheetName] || configs.products;
+    head.innerHTML = `<tr>${config.headers.map((value) => `<th>${escapeHTML(value)}</th>`).join("")}</tr>`;
+    body.innerHTML = config.rows.length
+      ? config.rows.slice(0, 200).map((row) => `<tr>${row.map((value) => `<td>${escapeHTML(value)}</td>`).join("")}</tr>`).join("")
+      : `<tr><td colspan="${config.headers.length}" class="muted">No hay registros para mostrar.</td></tr>`;
+  }
+
+  function renderExcelValidation() {
+    const { products, combos, items, errors } = state.excelData;
+    const valid = validExcelData();
+    $("#preview-products-count").textContent = products.length;
+    $("#preview-combos-count").textContent = combos.length;
+    $("#preview-items-count").textContent = items.length;
+    $("#preview-errors-count").textContent = errors.length;
+    const summary = $("#excel-validation-summary");
+    summary.innerHTML = `<div class="validation-kpis"><span><strong>${valid.products.length}</strong> productos válidos</span><span><strong>${valid.combos.length}</strong> combos válidos</span><span><strong>${valid.items.length}</strong> relaciones válidas</span><span class="${errors.length ? "has-errors" : "is-valid"}"><strong>${errors.length}</strong> errores</span></div>`;
+    summary.hidden = false;
+    $("#excel-preview").hidden = false;
+    $("#download-error-report").hidden = !errors.length;
+    $("#import-excel-button").disabled = !valid.products.length && !valid.combos.length;
+    renderExcelPreview("products");
+  }
+
+  async function readExcelFile() {
+    const file = state.excelFile;
+    if (!file) return showToast("Seleccione un archivo Excel.", "error");
+    if (!window.XLSX) return showToast("No se pudo cargar el lector de Excel.", "error");
+    const button = $("#validate-excel-button");
+    setBusy(button, true, "Validando...");
+    try {
+      const buffer = await file.arrayBuffer();
+      const workbook = window.XLSX.read(buffer, { type: "array", cellDates: true });
+      state.excelData = validateExcelWorkbook(workbook);
+      renderExcelValidation();
+      showToast(state.excelData.errors.length ? "Revise los errores encontrados." : "Archivo validado correctamente.", state.excelData.errors.length ? "error" : "success");
+    } catch (error) {
+      console.error(error);
+      showToast(error.message || "No se pudo leer el archivo Excel.", "error");
+    } finally {
+      setBusy(button, false);
+    }
+  }
+
+  function selectExcelFile(file) {
+    if (!file) return;
+    if (!/\.(xlsx|xls)$/i.test(file.name)) return showToast("Seleccione un archivo .xlsx o .xls.", "error");
+    state.excelFile = file;
+    state.excelData = { products: [], combos: [], items: [], errors: [] };
+    $("#excel-file-summary").innerHTML = `<i class="bx bx-file"></i><div><strong>${escapeHTML(file.name)}</strong><small>${(file.size / 1024).toFixed(1)} KB</small></div>`;
+    $("#excel-file-summary").hidden = false;
+    $("#excel-validation-summary").hidden = true;
+    $("#excel-preview").hidden = true;
+    $("#validate-excel-button").disabled = false;
+  }
+
+  async function importExcelCatalog() {
+    const button = $("#import-excel-button");
+    const mode = $("#excel-import-mode").value;
+    const data = validExcelData();
+    setBusy(button, true, "Importando...");
+    try {
+      let products = data.products;
+      let combos = data.combos;
+      if (mode === "insert") {
+        const productIds = new Set(state.products.map((item) => item.id));
+        const comboIds = new Set(state.combos.map((item) => item.id));
+        products = products.filter((item) => !productIds.has(item.id));
+        combos = combos.filter((item) => !comboIds.has(item.id));
+      }
+      if (products.length) {
+        const payload = products.map(({ __row, ...product }) => databaseProduct(product));
+        const query = mode === "insert" ? state.client.from("products").insert(payload) : state.client.from("products").upsert(payload);
+        const { error } = await query;
+        if (error) throw error;
+      }
+      if (combos.length) {
+        const payload = combos.map(({ __row, ...combo }) => databaseCombo(combo));
+        const query = mode === "insert" ? state.client.from("combos").insert(payload) : state.client.from("combos").upsert(payload);
+        const { error } = await query;
+        if (error) throw error;
+      }
+      const comboIdsToUpdate = new Set(data.items.map((item) => item.comboId));
+      for (const comboId of comboIdsToUpdate) {
+        if (mode === "insert" && state.combos.some((item) => item.id === comboId)) continue;
+        const { error: deleteError } = await state.client.from("combo_items").delete().eq("combo_id", comboId);
+        if (deleteError) throw deleteError;
+        const rows = data.items.filter((item) => item.comboId === comboId).map((item) => ({ combo_id: item.comboId, product_id: item.productId, quantity: item.quantity, sort_order: item.sortOrder }));
+        if (rows.length) {
+          const { error: itemsError } = await state.client.from("combo_items").insert(rows);
+          if (itemsError) throw itemsError;
+        }
+      }
+      $("#import-result").innerHTML = `<strong>Importación Excel completada.</strong><br>${products.length} productos, ${combos.length} combos y ${data.items.length} relaciones procesadas.`;
+      $("#import-result").hidden = false;
+      showToast(state.excelData.errors.length ? "Se importaron los registros válidos; revise el reporte de errores." : "Catálogo importado desde Excel.", state.excelData.errors.length ? "error" : "success");
+      await refreshData();
+    } catch (error) {
+      console.error(error);
+      showToast(error.message || "No se pudo importar el Excel.", "error");
+    } finally {
+      setBusy(button, false);
+    }
+  }
+
+  function downloadExcelErrorReport() {
+    const rows = [["Hoja", "Fila", "Campo", "Detalle"], ...state.excelData.errors.map((item) => [item.sheet, item.row, item.field, item.message])];
+    const csv = rows.map((row) => row.map((value) => `"${String(value ?? "").replaceAll('"', '""')}"`).join(",")).join("\n");
+    const blob = new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url; link.download = "errores-importacion-botanika.csv"; link.click();
+    URL.revokeObjectURL(url);
+  }
+
   function bindStaticEvents() {
     $("#login-form")?.addEventListener("submit", async (event) => {
       event.preventDefault();
@@ -984,6 +1267,15 @@
     $("#product-status-filter")?.addEventListener("change", renderProductsTable);
     $("#confirm-delete-button")?.addEventListener("click", confirmDelete);
     $("#import-json-button")?.addEventListener("click", importJsonCatalog);
+    $("#excel-file")?.addEventListener("change", (event) => selectExcelFile(event.target.files?.[0]));
+    $("#validate-excel-button")?.addEventListener("click", readExcelFile);
+    $("#import-excel-button")?.addEventListener("click", importExcelCatalog);
+    $("#download-error-report")?.addEventListener("click", downloadExcelErrorReport);
+    $$(".preview-tab").forEach((button) => button.addEventListener("click", () => renderExcelPreview(button.dataset.previewSheet)));
+    const dropZone = $("#excel-drop-zone");
+    dropZone?.addEventListener("dragover", (event) => { event.preventDefault(); dropZone.classList.add("is-dragging"); });
+    dropZone?.addEventListener("dragleave", () => dropZone.classList.remove("is-dragging"));
+    dropZone?.addEventListener("drop", (event) => { event.preventDefault(); dropZone.classList.remove("is-dragging"); selectExcelFile(event.dataTransfer.files?.[0]); });
 
     document.addEventListener("keydown", (event) => {
       if (event.key === "Escape") {
