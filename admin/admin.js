@@ -314,6 +314,7 @@
     renderRecent();
     renderProductsTable();
     renderCombosTable();
+    renderExportSummary();
   }
 
   function renderStats() {
@@ -325,6 +326,18 @@
     $("#stat-unavailable").textContent =
       state.products.filter((item) => !item.available).length +
       state.combos.filter((item) => !item.available).length;
+  }
+
+
+  function renderExportSummary() {
+    const productCount = $("#export-products-count");
+    const comboCount = $("#export-combos-count");
+    const itemCount = $("#export-items-count");
+    if (productCount) productCount.textContent = state.products.length;
+    if (comboCount) comboCount.textContent = state.combos.length;
+    if (itemCount) {
+      itemCount.textContent = state.combos.reduce((total, combo) => total + (Array.isArray(combo.items) ? combo.items.length : 0), 0);
+    }
   }
 
   function renderRecent() {
@@ -441,7 +454,7 @@
     state.activeSection = section;
     $$(".admin-section").forEach((node) => (node.hidden = node.id !== `section-${section}`));
     $$(".sidebar-link[data-section]").forEach((button) => button.classList.toggle("is-active", button.dataset.section === section));
-    const titles = { overview: "Resumen", products: "Productos", combos: "Combos", import: "Importar catálogo" };
+    const titles = { overview: "Resumen", products: "Productos", combos: "Combos", export: "Exportar catálogo", import: "Importar catálogo" };
     $("#page-title").textContent = titles[section] || "Administración";
     $("#admin-sidebar").classList.remove("is-open");
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -925,6 +938,219 @@
   }
 
 
+  function exportBoolean(value) {
+    return value ? "Sí" : "No";
+  }
+
+  function exportList(values = []) {
+    return Array.isArray(values)
+      ? values.map((value) => String(value || "").trim()).filter(Boolean).join("; ")
+      : "";
+  }
+
+  function exportColors(colors = []) {
+    if (!Array.isArray(colors)) return "";
+    return colors
+      .map((color) => {
+        const name = String(color?.name || "").trim();
+        const value = String(color?.value || color?.color || "").trim();
+        const image = String(color?.image || "").trim();
+        return name ? [name, value, image].join("|") : "";
+      })
+      .filter(Boolean)
+      .join("; ");
+  }
+
+  function exportDateStamp(includeTime = false) {
+    const now = new Date();
+    const date = [now.getFullYear(), String(now.getMonth() + 1).padStart(2, "0"), String(now.getDate()).padStart(2, "0")].join("-");
+    if (!includeTime) return date;
+    const time = [String(now.getHours()).padStart(2, "0"), String(now.getMinutes()).padStart(2, "0")].join("-");
+    return `${date}_${time}`;
+  }
+
+  function exportProductRows() {
+    return state.products.map((product) => ({
+      id: product.id,
+      nombre: product.name,
+      marca: product.brand,
+      categoria: product.category,
+      subcategoria: product.subcategory,
+      precio: Number(product.price || 0),
+      descripcion: product.description,
+      imagen: product.image,
+      disponible: exportBoolean(product.available),
+      nuevo: exportBoolean(product.new),
+      destacado: exportBoolean(product.featured),
+      oferta: exportBoolean(product.offer),
+      prioridad: Number(product.priority || 100),
+      colores: exportColors(product.colors),
+      galeria: exportList(product.gallery)
+    }));
+  }
+
+  function exportComboRows() {
+    return state.combos.map((combo) => ({
+      id: combo.id,
+      nombre: combo.name,
+      subcategoria: combo.subcategory,
+      precio: Number(combo.price || 0),
+      descripcion: combo.description,
+      imagen: combo.image,
+      disponible: exportBoolean(combo.available),
+      nuevo: exportBoolean(combo.new),
+      destacado: exportBoolean(combo.featured),
+      oferta: exportBoolean(combo.offer),
+      prioridad: Number(combo.priority || 100),
+      etiqueta: combo.label,
+      ideal_para: exportList(combo.idealFor),
+      beneficios: exportList(combo.benefits),
+      modo_uso: combo.usage
+    }));
+  }
+
+  function exportComboItemRows() {
+    return state.combos.flatMap((combo) =>
+      (Array.isArray(combo.items) ? combo.items : []).map((item, index) => ({
+        combo_id: combo.id,
+        producto_id: item.productId,
+        cantidad: Number(item.quantity || 1),
+        orden: Number.isFinite(Number(item.sortOrder)) ? Number(item.sortOrder) : index
+      }))
+    );
+  }
+
+  function setSheetLayout(sheet, widths = [], autoFilterRange = "") {
+    if (!sheet) return;
+    sheet["!cols"] = widths.map((width) => ({ wch: width }));
+    if (autoFilterRange) sheet["!autofilter"] = { ref: autoFilterRange };
+  }
+
+  async function refreshForExport(button = null) {
+    setBusy(button, true, "Actualizando...");
+    try {
+      await refreshData();
+      showToast("Datos actualizados desde Supabase.");
+    } catch (error) {
+      console.error(error);
+      showToast(error.message || "No fue posible actualizar los datos.", "error");
+      throw error;
+    } finally {
+      setBusy(button, false);
+    }
+  }
+
+  async function exportCatalogExcel() {
+    const button = $("#export-excel-button");
+    setBusy(button, true, "Generando Excel...");
+    try {
+      if (!window.XLSX) throw new Error("No se pudo cargar la librería de Excel.");
+      await refreshData();
+
+      const productRows = exportProductRows();
+      const comboRows = exportComboRows();
+      const comboItemRows = exportComboItemRows();
+      const workbook = window.XLSX.utils.book_new();
+
+      const summaryRows = [
+        ["RESPALDO BOTANIKA CR"],
+        ["Fecha de exportación", new Date().toLocaleString("es-CR")],
+        ["Productos", productRows.length],
+        ["Combos", comboRows.length],
+        ["Relaciones de combos", comboItemRows.length],
+        [],
+        ["Instrucciones"],
+        ["1. Edite las hojas Productos, Combos y ProductosCombo."],
+        ["2. No cambie los encabezados de las columnas."],
+        ["3. Conserve identificadores únicos en la columna id."],
+        ["4. Importe el archivo desde el panel y valídelo antes de confirmar."]
+      ];
+      const summarySheet = window.XLSX.utils.aoa_to_sheet(summaryRows);
+      summarySheet["!cols"] = [{ wch: 30 }, { wch: 32 }];
+
+      const productsSheet = window.XLSX.utils.json_to_sheet(productRows, {
+        header: ["id", "nombre", "marca", "categoria", "subcategoria", "precio", "descripcion", "imagen", "disponible", "nuevo", "destacado", "oferta", "prioridad", "colores", "galeria"]
+      });
+      setSheetLayout(productsSheet, [28, 34, 18, 20, 22, 12, 48, 42, 13, 11, 13, 11, 11, 48, 48], `A1:O${Math.max(1, productRows.length + 1)}`);
+
+      const combosSheet = window.XLSX.utils.json_to_sheet(comboRows, {
+        header: ["id", "nombre", "subcategoria", "precio", "descripcion", "imagen", "disponible", "nuevo", "destacado", "oferta", "prioridad", "etiqueta", "ideal_para", "beneficios", "modo_uso"]
+      });
+      setSheetLayout(combosSheet, [28, 34, 22, 12, 48, 42, 13, 11, 13, 11, 11, 22, 42, 48, 48], `A1:O${Math.max(1, comboRows.length + 1)}`);
+
+      const itemsSheet = window.XLSX.utils.json_to_sheet(comboItemRows, {
+        header: ["combo_id", "producto_id", "cantidad", "orden"]
+      });
+      setSheetLayout(itemsSheet, [30, 30, 12, 10], `A1:D${Math.max(1, comboItemRows.length + 1)}`);
+
+      window.XLSX.utils.book_append_sheet(workbook, summarySheet, "Resumen");
+      window.XLSX.utils.book_append_sheet(workbook, productsSheet, "Productos");
+      window.XLSX.utils.book_append_sheet(workbook, combosSheet, "Combos");
+      window.XLSX.utils.book_append_sheet(workbook, itemsSheet, "ProductosCombo");
+      workbook.Props = {
+        Title: "Catálogo Botanika CR",
+        Subject: "Exportación completa para edición e importación",
+        Author: "Botanika CR",
+        CreatedDate: new Date()
+      };
+
+      window.XLSX.writeFile(workbook, `catalogo-botanika-${exportDateStamp(true)}.xlsx`, { compression: true });
+      showToast(`Excel exportado: ${productRows.length} productos y ${comboRows.length} combos.`);
+    } catch (error) {
+      console.error(error);
+      showToast(error.message || "No fue posible exportar el catálogo.", "error");
+    } finally {
+      setBusy(button, false);
+    }
+  }
+
+  function downloadJsonFile(data, filename) {
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.setTimeout(() => URL.revokeObjectURL(url), 500);
+  }
+
+  async function exportCatalogJson() {
+    const button = $("#export-json-button");
+    setBusy(button, true, "Generando respaldo...");
+    try {
+      await refreshData();
+      const backup = {
+        version: "7.2.0",
+        exportedAt: new Date().toISOString(),
+        source: "Botanika CR Admin",
+        totals: {
+          products: state.products.length,
+          combos: state.combos.length,
+          comboItems: exportComboItemRows().length
+        },
+        products: state.products.map((product) => ({ ...product })),
+        combos: state.combos.map((combo) => ({
+          ...combo,
+          items: (combo.items || []).map((item) => ({
+            productId: item.productId,
+            quantity: item.quantity,
+            sortOrder: item.sortOrder
+          }))
+        }))
+      };
+      downloadJsonFile(backup, `respaldo-botanika-${exportDateStamp(true)}.json`);
+      showToast("Respaldo JSON descargado correctamente.");
+    } catch (error) {
+      console.error(error);
+      showToast(error.message || "No fue posible descargar el respaldo.", "error");
+    } finally {
+      setBusy(button, false);
+    }
+  }
+
+
   function excelHeader(value = "") {
     return normalize(value).replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
   }
@@ -1267,6 +1493,9 @@
     $("#product-status-filter")?.addEventListener("change", renderProductsTable);
     $("#confirm-delete-button")?.addEventListener("click", confirmDelete);
     $("#import-json-button")?.addEventListener("click", importJsonCatalog);
+    $("#refresh-export-button")?.addEventListener("click", (event) => refreshForExport(event.currentTarget));
+    $("#export-excel-button")?.addEventListener("click", exportCatalogExcel);
+    $("#export-json-button")?.addEventListener("click", exportCatalogJson);
     $("#excel-file")?.addEventListener("change", (event) => selectExcelFile(event.target.files?.[0]));
     $("#validate-excel-button")?.addEventListener("click", readExcelFile);
     $("#import-excel-button")?.addEventListener("click", importExcelCatalog);

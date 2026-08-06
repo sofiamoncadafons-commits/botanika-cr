@@ -11,8 +11,8 @@
   - Nunca coloque aquí la service_role key ni una secret key.
 */
 window.BOTANIKA_SUPABASE_CONFIG = {
-  enabled: false,
-  url: "https://SU-PROYECTO.supabase.co",
-  publishableKey: "SU-PUBLISHABLE-KEY",
+  enabled: true,
+  url: "https://zucbpnrqtorbrhoztdvx.supabase.co",
+  publishableKey: "sb_publishable_KzBuY6_z-Nazo4vx1loPPQ_3WXlkQHc",
   storageBucket: "product-images"
 };

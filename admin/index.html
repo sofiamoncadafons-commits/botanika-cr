@@ -6,7 +6,7 @@
   <title>Administración | Botanika CR</title>
   <meta name="robots" content="noindex,nofollow">
   <link href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="admin.css?v=7.1.0">
+  <link rel="stylesheet" href="admin.css?v=7.2.0">
 </head>
 <body>
   <div id="admin-toast" class="admin-toast" role="status" aria-live="polite"></div>
@@ -64,6 +64,9 @@
           </button>
           <button class="sidebar-link" type="button" data-section="combos">
             <i class="bx bx-gift"></i><span>Combos</span>
+          </button>
+          <button class="sidebar-link" type="button" data-section="export">
+            <i class="bx bx-export"></i><span>Exportar catálogo</span>
           </button>
           <button class="sidebar-link" type="button" data-section="import">
             <i class="bx bx-import"></i><span>Importar catálogo</span>
@@ -141,7 +144,8 @@
                 <h3>¿Qué desea hacer?</h3>
                 <button type="button" data-new-product><i class="bx bx-plus-circle"></i><span><strong>Agregar producto</strong><small>Nombre, precio, imagen y estado</small></span></button>
                 <button type="button" data-new-combo><i class="bx bx-gift"></i><span><strong>Crear combo</strong><small>Seleccione productos existentes</small></span></button>
-                <button type="button" data-go-section="import"><i class="bx bx-import"></i><span><strong>Importar JSON actual</strong><small>Migre el catálogo existente</small></span></button>
+                <button type="button" data-go-section="export"><i class="bx bx-export"></i><span><strong>Exportar catálogo</strong><small>Descargue Excel editable y respaldo JSON</small></span></button>
+                <button type="button" data-go-section="import"><i class="bx bx-import"></i><span><strong>Importar catálogo</strong><small>Actualice el inventario desde Excel o JSON</small></span></button>
               </article>
             </div>
           </section>
@@ -198,6 +202,70 @@
               </div>
               <div id="combos-empty" class="table-empty" hidden>No hay combos creados.</div>
             </div>
+          </section>
+
+          <section id="section-export" class="admin-section" hidden>
+            <div class="section-heading">
+              <div>
+                <span class="admin-eyebrow">Respaldo y edición masiva</span>
+                <h2>Exportar catálogo</h2>
+                <p>Descargue todos los productos, combos y relaciones para actualizarlos y volver a importarlos fácilmente.</p>
+              </div>
+              <button id="refresh-export-button" class="secondary-button" type="button">
+                <i class="bx bx-refresh"></i>Actualizar datos
+              </button>
+            </div>
+
+            <div class="export-summary" aria-label="Contenido disponible para exportar">
+              <article><i class="bx bx-package"></i><div><strong id="export-products-count">0</strong><span>Productos</span></div></article>
+              <article><i class="bx bx-gift"></i><div><strong id="export-combos-count">0</strong><span>Combos</span></div></article>
+              <article><i class="bx bx-link-alt"></i><div><strong id="export-items-count">0</strong><span>Relaciones de combos</span></div></article>
+            </div>
+
+            <div class="export-grid">
+              <article class="export-card export-card--excel">
+                <div class="export-card__icon"><i class="bx bx-spreadsheet"></i></div>
+                <div class="export-card__content">
+                  <span class="admin-eyebrow">Recomendado para actualizar</span>
+                  <h3>Catálogo completo en Excel</h3>
+                  <p>Genera un archivo compatible con la opción de importación. Incluye las hojas <strong>Productos</strong>, <strong>Combos</strong> y <strong>ProductosCombo</strong>.</p>
+                  <ul>
+                    <li>Edite precios, disponibilidad, novedades, destacados y ofertas.</li>
+                    <li>Agregue nuevos productos o combos en el mismo archivo.</li>
+                    <li>Vuelva a cargarlo desde <strong>Importar catálogo</strong>.</li>
+                  </ul>
+                </div>
+                <button id="export-excel-button" class="primary-button" type="button">
+                  <i class="bx bx-download"></i>Exportar Excel
+                </button>
+              </article>
+
+              <article class="export-card">
+                <div class="export-card__icon"><i class="bx bx-code-alt"></i></div>
+                <div class="export-card__content">
+                  <span class="admin-eyebrow">Respaldo técnico</span>
+                  <h3>Copia completa en JSON</h3>
+                  <p>Descarga una copia de seguridad con los datos actuales de productos, combos y sus relaciones.</p>
+                  <p class="export-note"><i class="bx bx-info-circle"></i>Este archivo es ideal como respaldo. Para editar y volver a cargar el catálogo, utilice el Excel.</p>
+                </div>
+                <button id="export-json-button" class="secondary-button" type="button">
+                  <i class="bx bx-download"></i>Descargar respaldo JSON
+                </button>
+              </article>
+            </div>
+
+            <article class="export-workflow">
+              <i class="bx bx-transfer-alt"></i>
+              <div>
+                <h3>Flujo recomendado</h3>
+                <ol>
+                  <li>Exporte el catálogo completo en Excel.</li>
+                  <li>Guarde una copia intacta como respaldo.</li>
+                  <li>Actualice únicamente las filas y columnas necesarias.</li>
+                  <li>Regrese a <strong>Importar catálogo</strong>, valide el archivo y confirme la carga.</li>
+                </ol>
+              </div>
+            </article>
           </section>
 
           <section id="section-import" class="admin-section" hidden>
@@ -310,7 +378,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <script src="../assets/js/supabase-config.js?v=7.1.0"></script>
-  <script src="admin.js?v=7.1.0"></script>
+  <script src="../assets/js/supabase-config.js?v=7.2.0"></script>
+  <script src="admin.js?v=7.2.0"></script>
 </body>
 </html>
