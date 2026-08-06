@@ -1,4 +1,4 @@
-const CACHE_NAME = "botanika-v6.2.0";
+const CACHE_NAME = "botanika-v7.0.0";
 
 const STATIC_ASSETS = [
   "./",
@@ -6,6 +6,7 @@ const STATIC_ASSETS = [
   "./manifest.webmanifest",
   "./assets/css/styles.css",
   "./assets/js/main.js",
+  "./assets/js/supabase-config.js",
   "./assets/img/logo-botanika.png",
   "./assets/icons/botanika-192.png",
   "./assets/icons/botanika-512.png"
@@ -48,7 +49,9 @@ self.addEventListener("fetch", (event) => {
     url.pathname.endsWith("/index.html") ||
     url.pathname.endsWith("/assets/css/styles.css") ||
     url.pathname.endsWith("/assets/js/main.js") ||
-    url.pathname.endsWith("/assets/data/productos.json");
+    url.pathname.endsWith("/assets/js/supabase-config.js") ||
+    url.pathname.endsWith("/assets/data/productos.json") ||
+    url.pathname.endsWith("/assets/data/combos.json");
 
   if (isAppAsset) {
     event.respondWith(

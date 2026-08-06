@@ -9,8 +9,8 @@ const CONFIG = {
   productsUrl:
     "assets/data/productos.json",
 
-  routinesUrl:
-    "assets/data/routines.json",
+  combosUrl:
+    "assets/data/combos.json",
 
   fallbackImage:
     "assets/img/logo-botanika.png",
@@ -347,7 +347,7 @@ function productById(
 
 function isCombo(product = {}) {
   const type = normalize(product.type);
-  return type === "combo" || type === "routine" || product.category === "Combos" || product.category === "Rutinas Botanika";
+  return type === "combo" || type === "routine" || product.category === "Combos" || product.category === "Combos Botanika";
 }
 
 function comboResolvedItems(product = {}) {
@@ -482,89 +482,205 @@ function initNavigation() {
   CARGAR PRODUCTOS
 ==================================*/
 
+function getSupabaseCatalogClient() {
+  const config = window.BOTANIKA_SUPABASE_CONFIG;
+
+  if (
+    !config?.enabled ||
+    !config.url ||
+    !config.publishableKey ||
+    !window.supabase?.createClient
+  ) {
+    return null;
+  }
+
+  if (!window.__botanikaSupabaseClient) {
+    window.__botanikaSupabaseClient = window.supabase.createClient(
+      config.url,
+      config.publishableKey,
+      {
+        auth: {
+          persistSession: true,
+          autoRefreshToken: true,
+          detectSessionInUrl: true
+        }
+      }
+    );
+  }
+
+  return window.__botanikaSupabaseClient;
+}
+
+
+function mapDatabaseProduct(row = {}) {
+  return {
+    id: row.id,
+    type: "product",
+    name: row.name || "Producto",
+    brand: row.brand || "Botanika",
+    category: row.category || "Otros",
+    subcategory: row.subcategory || "",
+    price: Number(row.price || 0),
+    currency: row.currency || "CRC",
+    description: row.description || "",
+    image: row.image_url || CONFIG.fallbackImage,
+    available: row.available !== false,
+    featured: Boolean(row.featured),
+    new: Boolean(row.is_new),
+    offer: Boolean(row.offer),
+    priority: Number(row.priority || 100),
+    colors: Array.isArray(row.colors) ? row.colors : [],
+    gallery: Array.isArray(row.gallery) ? row.gallery : []
+  };
+}
+
+
+function mapDatabaseCombo(row = {}) {
+  const items = Array.isArray(row.combo_items)
+    ? row.combo_items
+        .map((item) => ({
+          productId: item.product_id || item.product?.id,
+          quantity: Number(item.quantity || 1),
+          sortOrder: Number(item.sort_order || 0),
+          product: item.product ? mapDatabaseProduct(item.product) : null
+        }))
+        .filter((item) => item.productId)
+        .sort((a, b) => a.sortOrder - b.sortOrder)
+    : [];
+
+  return {
+    id: row.id,
+    type: "combo",
+    name: row.name || "Combo Botanika",
+    brand: row.brand || "Botanika",
+    category: row.category || "Combos Botanika",
+    subcategory: row.subcategory || "",
+    price: Number(row.price || 0),
+    currency: row.currency || "CRC",
+    description: row.description || "",
+    image: row.image_url || CONFIG.fallbackImage,
+    available: row.available !== false,
+    featured: Boolean(row.featured),
+    new: Boolean(row.is_new),
+    offer: Boolean(row.offer),
+    priority: Number(row.priority || 100),
+    label: row.label || "Combo Botanika",
+    idealFor: Array.isArray(row.ideal_for) ? row.ideal_for : [],
+    benefits: Array.isArray(row.benefits) ? row.benefits : [],
+    usage: row.usage || "",
+    colors: [],
+    items
+  };
+}
+
+
+async function loadCatalogFromSupabase(client) {
+  const [productsResult, combosResult] = await Promise.all([
+    client
+      .from("products")
+      .select("*")
+      .order("priority", { ascending: true })
+      .order("name", { ascending: true }),
+    client
+      .from("combos")
+      .select(`
+        *,
+        combo_items (
+          product_id,
+          quantity,
+          sort_order,
+          product:products (*)
+        )
+      `)
+      .order("priority", { ascending: true })
+      .order("name", { ascending: true })
+  ]);
+
+  if (productsResult.error) {
+    throw productsResult.error;
+  }
+
+  if (combosResult.error) {
+    throw combosResult.error;
+  }
+
+  return [
+    ...(productsResult.data || []).map(mapDatabaseProduct),
+    ...(combosResult.data || []).map(mapDatabaseCombo)
+  ];
+}
+
+
+async function loadCatalogFromJson() {
+  const [productsResponse, combosResponse] = await Promise.all([
+    fetch(CONFIG.productsUrl, { cache: "no-store" }),
+    fetch(CONFIG.combosUrl, { cache: "no-store" })
+  ]);
+
+  if (!productsResponse.ok) {
+    throw new Error(`HTTP productos ${productsResponse.status}`);
+  }
+
+  const productData = await productsResponse.json();
+  if (!productData || !Array.isArray(productData.products)) {
+    throw new Error("productos.json inválido");
+  }
+
+  let combos = [];
+  if (combosResponse.ok) {
+    const comboData = await combosResponse.json();
+    combos = Array.isArray(comboData?.combos) ? comboData.combos : [];
+  } else {
+    console.warn("No se pudo cargar combos.json; el catálogo continuará sin combos.");
+  }
+
+  return [...productData.products, ...combos].filter(Boolean);
+}
+
+
 async function loadProducts() {
-  const container =
-    $("#products-container");
+  const container = $("#products-container");
 
   if (!container) {
-    console.error(
-      "No existe #products-container."
-    );
-
+    console.error("No existe #products-container.");
     return;
   }
 
   container.innerHTML = `
     <div class="empty-message">
-
-      <i
-        class="bx bx-loader-alt bx-spin"
-        style="font-size: 3rem;"
-      ></i>
-
-      <h3>
-        Cargando productos
-      </h3>
-
+      <i class="bx bx-loader-alt bx-spin" style="font-size: 3rem;"></i>
+      <h3>Cargando productos</h3>
     </div>
   `;
 
   try {
-    const [productsResponse, routinesResponse] = await Promise.all([
-      fetch(CONFIG.productsUrl, { cache: "no-store" }),
-      fetch(CONFIG.routinesUrl, { cache: "no-store" })
-    ]);
+    const client = getSupabaseCatalogClient();
 
-    if (!productsResponse.ok) {
-      throw new Error(`HTTP productos ${productsResponse.status}`);
-    }
-
-    const productData = await productsResponse.json();
-    if (!productData || !Array.isArray(productData.products)) {
-      throw new Error("productos.json inválido");
-    }
-
-    let routines = [];
-    if (routinesResponse.ok) {
-      const routineData = await routinesResponse.json();
-      routines = Array.isArray(routineData?.routines) ? routineData.routines : [];
+    if (client) {
+      try {
+        state.products = await loadCatalogFromSupabase(client);
+        console.info("Catálogo cargado desde Supabase.");
+      } catch (supabaseError) {
+        console.error("No se pudo cargar Supabase; se utilizará el respaldo JSON.", supabaseError);
+        state.products = await loadCatalogFromJson();
+      }
     } else {
-      console.warn("No se pudo cargar routines.json; el catálogo continuará sin rutinas.");
+      state.products = await loadCatalogFromJson();
     }
-
-    state.products = [...productData.products, ...routines].filter(Boolean);
 
     populateBrands();
-
     renderFeaturedProducts();
     renderNewProducts();
     renderBrandShowcase();
-
     applyFilters();
   } catch (error) {
-    console.error(
-      "Error cargando catálogo:",
-      error
-    );
+    console.error("Error cargando catálogo:", error);
 
     container.innerHTML = `
       <div class="empty-message">
-
-        <i
-          class="bx bx-error-circle"
-          style="font-size: 3rem;"
-        ></i>
-
-        <h3>
-          No se pudo cargar el catálogo
-        </h3>
-
-        <p>
-          Confirme que existe
-          assets/data/productos.json
-          y abra el sitio con Live Server.
-        </p>
-
+        <i class="bx bx-error-circle" style="font-size: 3rem;"></i>
+        <h3>No se pudo cargar el catálogo</h3>
+        <p>Revise la configuración de Supabase o los archivos JSON de respaldo.</p>
       </div>
     `;
   }
@@ -1576,7 +1692,7 @@ function renderBrandShowcase() {
 
 function getProductTagInfo(product) {
   if (isCombo(product)) {
-    return { text: product.label || "Rutina Botanika", className: "tag--combo" };
+    return { text: product.label || "Combo Botanika", className: "tag--combo" };
   }
 
   if (product.available === false) {
@@ -1640,18 +1756,18 @@ function productCardHTML(product) {
         </button>
       </div>
       <div class="product-content">
-        <span class="product-brand">${escapeHTML(combo ? "BOTANIKA · RUTINA" : (product.brand || product.category))}</span>
+        <span class="product-brand">${escapeHTML(combo ? "BOTANIKA · COMBO" : (product.brand || product.category))}</span>
         <button type="button" class="product-name" data-action="details">${escapeHTML(product.name)}</button>
-        <span class="product-sub">${escapeHTML(combo ? (product.subcategory || `${included.length} productos incluidos`) : (product.subcategory || ""))}</span>
-        ${combo ? `<div class="combo-summary"><span><i class="bx bx-package"></i>${included.length} productos</span>${Array.isArray(product.idealFor) && product.idealFor[0] ? `<span><i class="bx bx-sparkles"></i>${escapeHTML(product.idealFor[0])}</span>` : ""}</div><div class="combo-mini-list">${included.slice(0,3).map(item => `<span><i class="bx bx-check"></i>${escapeHTML(item.name)}</span>`).join("")}</div>` : ""}
-        <div class="product-price-wrap ${combo ? "product-price-wrap--combo" : ""}">
+        <span class="product-sub">${escapeHTML(combo ? `${included.length} productos incluidos` : (product.subcategory || ""))}</span>
+        <div class="product-price-wrap">
           ${regularPrice > Number(product.price) ? `<span class="product-old-price">${formatPrice(regularPrice, product.currency || "CRC")}</span>` : ""}
           <strong class="product-price">${formatPrice(product.price, product.currency || "CRC")}</strong>
-          ${saving > 0 ? `<span class="combo-saving">Ahorra ${formatPrice(saving, product.currency || "CRC")}</span>` : ""}
         </div>
-        ${combo ? "" : `<div class="swatches">${colors.slice(0,6).map((color,index)=>`<button type="button" class="swatch ${index===0?"selected":""}" data-action="color" data-color="${escapeHTML(color.name)}" data-image="${escapeHTML(color.image || product.image || CONFIG.fallbackImage)}" style="--swatch:${escapeHTML(color.value || "#cccccc")};" title="${escapeHTML(color.name)}" aria-label="Seleccionar color ${escapeHTML(color.name)}"></button>`).join("")}</div>`}
+        ${combo
+          ? `<div class="combo-card-meta" title="Incluye ${included.length} productos${saving > 0 ? ` · Ahorra ${formatPrice(saving, product.currency || "CRC")}` : ""}"><span><i class="bx bx-package"></i>${included.length} productos</span>${saving > 0 ? `<strong>Ahorra ${formatPrice(saving, product.currency || "CRC")}</strong>` : ""}</div>`
+          : `<div class="swatches">${colors.slice(0,6).map((color,index)=>`<button type="button" class="swatch ${index===0?"selected":""}" data-action="color" data-color="${escapeHTML(color.name)}" data-image="${escapeHTML(color.image || product.image || CONFIG.fallbackImage)}" style="--swatch:${escapeHTML(color.value || "#cccccc")};" title="${escapeHTML(color.name)}" aria-label="Seleccionar color ${escapeHTML(color.name)}"></button>`).join("")}</div>`}
         <div class="product-actions">
-          <button type="button" class="add-cart add-cart-icon" data-action="add-cart" aria-label="${product.available === false ? "Producto agotado" : `Agregar ${escapeHTML(product.name)} al carrito`}" title="${product.available === false ? "Producto agotado" : (combo ? "Agregar rutina" : "Agregar al carrito")}" ${product.available === false ? "disabled" : ""}><i class="bx ${product.available === false ? "bx-x-circle" : (combo ? "bx-leaf" : "bxs-shopping-bag")}"></i></button>
+          <button type="button" class="add-cart add-cart-icon" data-action="add-cart" aria-label="${product.available === false ? "Producto agotado" : `Agregar ${escapeHTML(product.name)} al carrito`}" title="${product.available === false ? "Producto agotado" : (combo ? "Agregar combo" : "Agregar al carrito")}" ${product.available === false ? "disabled" : ""}><i class="bx ${product.available === false ? "bx-x-circle" : (combo ? "bx-leaf" : "bxs-shopping-bag")}"></i></button>
           <button type="button" class="details details-icon" data-action="details" aria-label="Ver detalle de ${escapeHTML(product.name)}" title="${combo ? "Ver combo" : "Ver detalle"}"><i class="bx bx-show"></i></button>
           <button type="button" class="share-product" data-action="share" aria-label="Compartir ${escapeHTML(product.name)} por WhatsApp" title="Compartir por WhatsApp"><i class="bx bxl-whatsapp"></i></button>
         </div>
@@ -1811,7 +1927,7 @@ function addToCart(
 
   renderCart();
 
-  toast(isCombo(product) ? "Rutina agregada al carrito" : "Producto agregado al carrito");
+  toast(isCombo(product) ? "Combo agregado al carrito" : "Producto agregado al carrito");
 
   openCart();
 }
@@ -2411,7 +2527,7 @@ function openModal(id) {
 
     modalAddButton.innerHTML =
       isAvailable
-        ? (isCombo(product) ? '<i class="bx bx-gift"></i><span>Agregar rutina</span>' : '<i class="bx bxs-shopping-bag"></i><span>Agregar al carrito</span>')
+        ? (isCombo(product) ? '<i class="bx bx-gift"></i><span>Agregar combo</span>' : '<i class="bx bxs-shopping-bag"></i><span>Agregar al carrito</span>')
         : '<i class="bx bx-x-circle"></i><span>Producto agotado</span>';
   }
 
@@ -2907,9 +3023,9 @@ function updateModalWhatsApp(product) {
   if (!button || !product) return;
   const lines = ["Hola Botanika CR,", "", `Deseo consultar por: ${product.name}.`];
   if (isCombo(product)) {
-    lines.push("", "La rutina incluye:");
+    lines.push("", "El combo incluye:");
     comboResolvedItems(product).forEach(item => lines.push(`• ${item.name}${item.quantity > 1 ? ` (x${item.quantity})` : ""}`));
-    lines.push("", `Precio de la rutina: ${formatPrice(product.price, product.currency || "CRC")}.`);
+    lines.push("", `Precio del combo: ${formatPrice(product.price, product.currency || "CRC")}.`);
     const saving = comboSaving(product);
     if (saving > 0) lines.push(`Ahorro: ${formatPrice(saving, product.currency || "CRC")}.`);
   } else if (state.modalColor) {

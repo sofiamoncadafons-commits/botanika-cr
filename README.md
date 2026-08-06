@@ -1,21 +1,16 @@
-BOTANIKA CR — BASE LIMPIA Y ESTABLE
+# Botanika CR v7.0.0
 
-Esta versión:
-- No usa product-placeholder.svg.
-- Usa assets/img/logo-botanika.png como imagen de respaldo.
-- Mantiene catálogo, filtros, paginación, favoritos, carrito, modal y WhatsApp.
-- Está dividida en módulos pequeños.
+Versión con panel administrativo dinámico basado en Supabase.
 
-INSTALACIÓN
-1. Haga una copia de seguridad de su proyecto actual.
-2. Copie index.html.
-3. Copie assets/css/styles.css.
-4. Copie todos los archivos de assets/js/.
-5. Copie assets/data/productos.json.
-6. Copie assets/img/logo-botanika.png.
-7. Mantenga sus fotografías dentro de assets/img/products/.
-8. Abra el proyecto con Live Server.
-9. Presione Ctrl + F5.
+## Accesos
 
-IMPORTANTE
-Los productos cuyas imágenes no existan mostrarán el logo de Botanika en lugar de un cuadro roto.
+- Catálogo público: `index.html`
+- Panel administrativo: `admin/index.html`
+- Configuración: `assets/js/supabase-config.js`
+- Instalación: `INSTALACION_PANEL_ADMIN.md`
+- SQL de base y seguridad: `supabase/01_schema_seguridad.sql`
+- Autorización del administrador: `supabase/02_autorizar_administrador.sql`
+
+## Funcionamiento de respaldo
+
+Mientras Supabase no esté configurado o si ocurre un error de conexión, el catálogo público intenta cargar `assets/data/productos.json` y `assets/data/combos.json`.

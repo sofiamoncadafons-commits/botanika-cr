@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Administración | Botanika CR</title>
+  <meta name="robots" content="noindex,nofollow">
+  <link href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="admin.css?v=7.0.0">
+</head>
+<body>
+  <div id="admin-toast" class="admin-toast" role="status" aria-live="polite"></div>
+
+  <main class="admin-app">
+    <section id="setup-screen" class="access-screen" hidden>
+      <div class="access-card">
+        <img src="../assets/img/logo-botanika.png" alt="Botanika CR" class="access-logo">
+        <span class="access-kicker">Panel administrativo</span>
+        <h1>Falta configurar Supabase</h1>
+        <p>Complete <code>assets/js/supabase-config.js</code> y cambie <code>enabled</code> a <code>true</code>.</p>
+        <a href="../INSTALACION_PANEL_ADMIN.md" class="primary-button">Ver instrucciones</a>
+      </div>
+    </section>
+
+    <section id="login-screen" class="access-screen" hidden>
+      <form id="login-form" class="access-card">
+        <img src="../assets/img/logo-botanika.png" alt="Botanika CR" class="access-logo">
+        <span class="access-kicker">Acceso privado</span>
+        <h1>Administración Botanika</h1>
+        <p>Ingrese con el usuario autorizado en Supabase.</p>
+
+        <label class="field">
+          <span>Correo electrónico</span>
+          <input id="login-email" type="email" autocomplete="username" required>
+        </label>
+
+        <label class="field">
+          <span>Contraseña</span>
+          <input id="login-password" type="password" autocomplete="current-password" required minlength="6">
+        </label>
+
+        <button id="login-button" class="primary-button" type="submit">
+          <i class="bx bx-log-in-circle"></i>
+          Ingresar
+        </button>
+
+        <p id="login-error" class="form-error" hidden></p>
+      </form>
+    </section>
+
+    <section id="dashboard-screen" class="dashboard" hidden>
+      <aside class="sidebar" id="admin-sidebar">
+        <a href="../index.html" class="admin-brand">
+          <img src="../assets/img/logo-botanika.png" alt="Botanika CR">
+          <span>BOTANIKA <strong>CR</strong></span>
+        </a>
+
+        <nav class="sidebar-nav" aria-label="Administración">
+          <button class="sidebar-link is-active" type="button" data-section="overview">
+            <i class="bx bx-grid-alt"></i><span>Resumen</span>
+          </button>
+          <button class="sidebar-link" type="button" data-section="products">
+            <i class="bx bx-package"></i><span>Productos</span>
+          </button>
+          <button class="sidebar-link" type="button" data-section="combos">
+            <i class="bx bx-gift"></i><span>Combos</span>
+          </button>
+          <button class="sidebar-link" type="button" data-section="import">
+            <i class="bx bx-import"></i><span>Importar catálogo</span>
+          </button>
+        </nav>
+
+        <div class="sidebar-bottom">
+          <a class="sidebar-link" href="../index.html" target="_blank" rel="noopener noreferrer">
+            <i class="bx bx-store"></i><span>Ver catálogo</span>
+          </a>
+          <button id="logout-button" class="sidebar-link" type="button">
+            <i class="bx bx-log-out"></i><span>Cerrar sesión</span>
+          </button>
+        </div>
+      </aside>
+
+      <div class="dashboard-main">
+        <header class="admin-header">
+          <button id="sidebar-toggle" class="icon-button" type="button" aria-label="Abrir menú">
+            <i class="bx bx-menu"></i>
+          </button>
+          <div>
+            <span class="admin-eyebrow">Catálogo en línea</span>
+            <h1 id="page-title">Resumen</h1>
+          </div>
+          <div class="header-user">
+            <span id="admin-email"></span>
+            <span class="user-dot"></span>
+          </div>
+        </header>
+
+        <div class="admin-content">
+          <section id="section-overview" class="admin-section">
+            <div class="section-heading">
+              <div>
+                <span class="admin-eyebrow">Estado del inventario</span>
+                <h2>Panel Botanika</h2>
+                <p>Administre el catálogo sin modificar archivos JSON ni código.</p>
+              </div>
+              <button class="primary-button" type="button" data-new-product>
+                <i class="bx bx-plus"></i>Agregar producto
+              </button>
+            </div>
+
+            <div class="stats-grid">
+              <article class="stat-card">
+                <i class="bx bx-package"></i>
+                <div><strong id="stat-products">0</strong><span>Productos</span></div>
+              </article>
+              <article class="stat-card">
+                <i class="bx bx-gift"></i>
+                <div><strong id="stat-combos">0</strong><span>Combos</span></div>
+              </article>
+              <article class="stat-card">
+                <i class="bx bx-star"></i>
+                <div><strong id="stat-featured">0</strong><span>Destacados</span></div>
+              </article>
+              <article class="stat-card">
+                <i class="bx bx-x-circle"></i>
+                <div><strong id="stat-unavailable">0</strong><span>No disponibles</span></div>
+              </article>
+            </div>
+
+            <div class="dashboard-grid">
+              <article class="panel-card">
+                <div class="panel-card__head">
+                  <div><span class="admin-eyebrow">Actualizados recientemente</span><h3>Últimos productos</h3></div>
+                  <button class="text-button" type="button" data-go-section="products">Ver todos</button>
+                </div>
+                <div id="recent-products" class="compact-list"></div>
+              </article>
+
+              <article class="panel-card quick-actions">
+                <span class="admin-eyebrow">Acciones rápidas</span>
+                <h3>¿Qué desea hacer?</h3>
+                <button type="button" data-new-product><i class="bx bx-plus-circle"></i><span><strong>Agregar producto</strong><small>Nombre, precio, imagen y estado</small></span></button>
+                <button type="button" data-new-combo><i class="bx bx-gift"></i><span><strong>Crear combo</strong><small>Seleccione productos existentes</small></span></button>
+                <button type="button" data-go-section="import"><i class="bx bx-import"></i><span><strong>Importar JSON actual</strong><small>Migre el catálogo existente</small></span></button>
+              </article>
+            </div>
+          </section>
+
+          <section id="section-products" class="admin-section" hidden>
+            <div class="section-heading">
+              <div>
+                <span class="admin-eyebrow">Inventario</span>
+                <h2>Productos</h2>
+                <p>Agregue, edite, desactive o elimine productos.</p>
+              </div>
+              <button class="primary-button" type="button" data-new-product><i class="bx bx-plus"></i>Agregar producto</button>
+            </div>
+
+            <div class="toolbar">
+              <label class="search-box"><i class="bx bx-search"></i><input id="product-search" type="search" placeholder="Buscar por nombre, marca o categoría"></label>
+              <select id="product-status-filter" aria-label="Filtrar productos">
+                <option value="all">Todos los estados</option>
+                <option value="available">Disponibles</option>
+                <option value="unavailable">No disponibles</option>
+                <option value="new">Novedades</option>
+                <option value="featured">Destacados</option>
+                <option value="offer">Ofertas</option>
+              </select>
+            </div>
+
+            <div class="table-card">
+              <div class="table-scroll">
+                <table>
+                  <thead><tr><th>Producto</th><th>Marca / categoría</th><th>Precio</th><th>Estado</th><th>Visibilidad</th><th class="actions-column">Acciones</th></tr></thead>
+                  <tbody id="products-table-body"></tbody>
+                </table>
+              </div>
+              <div id="products-empty" class="table-empty" hidden>No hay productos que coincidan con la búsqueda.</div>
+            </div>
+          </section>
+
+          <section id="section-combos" class="admin-section" hidden>
+            <div class="section-heading">
+              <div>
+                <span class="admin-eyebrow">Venta agrupada</span>
+                <h2>Combos Botanika</h2>
+                <p>Combine productos existentes y defina un precio especial.</p>
+              </div>
+              <button class="primary-button" type="button" data-new-combo><i class="bx bx-plus"></i>Crear combo</button>
+            </div>
+
+            <div class="table-card">
+              <div class="table-scroll">
+                <table>
+                  <thead><tr><th>Combo</th><th>Incluye</th><th>Precio combo</th><th>Precio individual</th><th>Ahorro</th><th class="actions-column">Acciones</th></tr></thead>
+                  <tbody id="combos-table-body"></tbody>
+                </table>
+              </div>
+              <div id="combos-empty" class="table-empty" hidden>No hay combos creados.</div>
+            </div>
+          </section>
+
+          <section id="section-import" class="admin-section" hidden>
+            <div class="section-heading">
+              <div>
+                <span class="admin-eyebrow">Migración inicial</span>
+                <h2>Importar catálogo actual</h2>
+                <p>Cargue en Supabase los productos y combos que todavía están en los archivos JSON.</p>
+              </div>
+            </div>
+
+            <article class="import-card">
+              <i class="bx bx-cloud-upload"></i>
+              <div>
+                <h3>Importación segura desde los JSON del sitio</h3>
+                <p>La operación utiliza <strong>upsert</strong>: crea los registros que no existen y actualiza los que tengan el mismo identificador. No elimina registros adicionales de Supabase.</p>
+                <ul>
+                  <li><code>assets/data/productos.json</code></li>
+                  <li><code>assets/data/combos.json</code></li>
+                </ul>
+              </div>
+              <button id="import-json-button" class="primary-button" type="button"><i class="bx bx-import"></i>Importar ahora</button>
+            </article>
+
+            <div id="import-result" class="import-result" hidden></div>
+          </section>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="editor-modal" class="editor-modal" hidden>
+    <div class="editor-backdrop" data-close-editor></div>
+    <section class="editor-dialog" role="dialog" aria-modal="true" aria-labelledby="editor-title">
+      <header class="editor-header">
+        <div><span id="editor-kicker" class="admin-eyebrow"></span><h2 id="editor-title"></h2></div>
+        <button class="icon-button" type="button" data-close-editor aria-label="Cerrar"><i class="bx bx-x"></i></button>
+      </header>
+      <form id="editor-form" class="editor-form"></form>
+    </section>
+  </div>
+
+  <div id="confirm-modal" class="confirm-modal" hidden>
+    <div class="editor-backdrop" data-close-confirm></div>
+    <section class="confirm-dialog" role="alertdialog" aria-modal="true" aria-labelledby="confirm-title">
+      <i class="bx bx-trash"></i>
+      <h2 id="confirm-title">Confirmar eliminación</h2>
+      <p id="confirm-message"></p>
+      <div class="confirm-actions">
+        <button class="secondary-button" type="button" data-close-confirm>Cancelar</button>
+        <button id="confirm-delete-button" class="danger-button" type="button">Eliminar</button>
+      </div>
+    </section>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../assets/js/supabase-config.js?v=7.0.0"></script>
+  <script src="admin.js?v=7.0.0"></script>
+</body>
+</html>

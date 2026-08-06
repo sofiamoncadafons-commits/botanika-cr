@@ -13013,7 +13013,7 @@ img {
 
 
 /* =========================================================
-   BOTANIKA CR v6.2.0 · RUTINAS BOTANIKA · MOBILE FIRST
+   BOTANIKA CR v6.2.1 · COMBOS BOTANIKA · MOBILE FIRST
    ========================================================= */
 .quick-filter--combo{
   border-color:#a86f5a;
@@ -13200,4 +13200,122 @@ img {
 @media (min-width:761px){
   .product-card--combo .product-media{min-height:260px}
   .modal-combo__items{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+
+/* =========================================================
+   BOTANIKA CR v6.2.2 · TARJETAS DE COMBOS UNIFORMES
+   Mantiene el mismo alto y proporción que las tarjetas normales.
+   ========================================================= */
+.product-card--combo {
+  height: 100%;
+}
+
+.product-card--combo .product-media {
+  height: 205px;
+  min-height: 0;
+  aspect-ratio: auto;
+  padding: .45rem;
+}
+
+.product-card--combo .product-image {
+  width: 96%;
+  height: 96%;
+  max-width: 235px;
+  max-height: 195px;
+  object-fit: contain;
+}
+
+.product-card--combo .product-content {
+  min-height: 158px;
+  padding: .72rem .75rem .78rem;
+}
+
+.product-card--combo .product-name {
+  min-height: 36px;
+  margin: .08rem 0 .15rem;
+  font-family: inherit;
+  font-size: .91rem;
+  line-height: 1.2;
+}
+
+.product-card--combo .product-price-wrap {
+  min-height: 25px;
+  margin: .2rem 0 .42rem;
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.product-card--combo .combo-summary,
+.product-card--combo .combo-mini-list,
+.product-card--combo .product-price-wrap--combo,
+.product-card--combo .combo-saving {
+  display: none !important;
+}
+
+.combo-card-meta {
+  display: flex;
+  min-width: 0;
+  min-height: 18px;
+  margin: 0 0 .42rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: .35rem;
+  color: #6b625d;
+  font-size: .61rem;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.combo-card-meta span,
+.combo-card-meta strong {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.combo-card-meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: .2rem;
+}
+
+.combo-card-meta i {
+  flex: 0 0 auto;
+  color: #a86f5a;
+  font-size: .8rem;
+}
+
+.combo-card-meta strong {
+  color: #48604f;
+  font-weight: 800;
+}
+
+@media (max-width: 760px) {
+  .product-card--combo .product-media {
+    height: 205px;
+    min-height: 0;
+    aspect-ratio: auto;
+  }
+
+  .product-card--combo .product-content {
+    min-height: 158px;
+    padding: .72rem .75rem .78rem;
+  }
+
+  .product-card--combo .product-name {
+    min-height: 36px;
+    font-size: .91rem;
+  }
+
+  .combo-card-meta {
+    font-size: .58rem;
+    gap: .25rem;
+  }
+}
+
+@media (max-width: 430px) {
+  .combo-card-meta strong {
+    max-width: 54%;
+  }
 }

@@ -1,0 +1,88 @@
+{
+  "combos": [
+    {
+      "id": "combo-maquillaje-diario",
+      "type": "combo",
+      "name": "Combo Maquillaje Diario",
+      "brand": "Botanika",
+      "category": "Combos Botanika",
+      "subcategory": "Maquillaje esencial",
+      "price": 14500,
+      "currency": "CRC",
+      "description": "Tres esenciales para preparar, corregir y perfeccionar un maquillaje diario de forma práctica.",
+      "image": "assets/img/combos/combo-maquillaje-diario.jpg",
+      "available": true,
+      "featured": true,
+      "new": true,
+      "offer": true,
+      "colors": [],
+      "items": [
+        {
+          "productId": "base-liquida-miracle-skin-samy",
+          "quantity": 1
+        },
+        {
+          "productId": "corrector-liquido-samy",
+          "quantity": 1
+        },
+        {
+          "productId": "corrector-dolce-bella",
+          "quantity": 1
+        }
+      ],
+      "priority": 10,
+      "label": "Combo Botanika",
+      "idealFor": [
+        "Maquillaje diario",
+        "Acabado uniforme",
+        "Combo práctico"
+      ],
+      "benefits": [
+        "Prepara y unifica el rostro",
+        "Ayuda a corregir imperfecciones",
+        "Reúne tres esenciales en un solo kit"
+      ],
+      "usage": "Aplique primero la base y luego los correctores en las zonas que desee perfeccionar. Difumine por capas para lograr un acabado natural."
+    },
+    {
+      "id": "combo-cobertura-perfecta",
+      "type": "combo",
+      "name": "Combo Cobertura Perfecta",
+      "brand": "Botanika",
+      "category": "Combos Botanika",
+      "subcategory": "Dúo de alta cobertura",
+      "price": 13500,
+      "currency": "CRC",
+      "description": "Base y corrector de alta cobertura para lograr un acabado uniforme y duradero.",
+      "image": "assets/img/combos/combo-cobertura-perfecta.jpg",
+      "available": true,
+      "featured": true,
+      "new": false,
+      "offer": true,
+      "colors": [],
+      "items": [
+        {
+          "productId": "base-flawless-stay-beauty-creations",
+          "quantity": 1
+        },
+        {
+          "productId": "corrector-liquido-flawless-beauty-creations",
+          "quantity": 1
+        }
+      ],
+      "priority": 20,
+      "label": "Combo Botanika",
+      "idealFor": [
+        "Eventos",
+        "Mayor cobertura",
+        "Acabado duradero"
+      ],
+      "benefits": [
+        "Combina base y corrector compatibles",
+        "Ayuda a lograr un tono más uniforme",
+        "Precio especial por el combo completo"
+      ],
+      "usage": "Aplique la base en capas ligeras y use el corrector únicamente en las áreas que requieren cobertura adicional."
+    }
+  ]
+}
