@@ -9,6 +9,9 @@ const CONFIG = {
   productsUrl:
     "assets/data/productos.json",
 
+  routinesUrl:
+    "assets/data/routines.json",
+
   fallbackImage:
     "assets/img/logo-botanika.png",
 
@@ -343,7 +346,8 @@ function productById(
 
 
 function isCombo(product = {}) {
-  return normalize(product.type) === "combo" || product.category === "Combos";
+  const type = normalize(product.type);
+  return type === "combo" || type === "routine" || product.category === "Combos" || product.category === "Rutinas Botanika";
 }
 
 function comboResolvedItems(product = {}) {
@@ -506,39 +510,29 @@ async function loadProducts() {
   `;
 
   try {
-    const response =
-      await fetch(
-        CONFIG.productsUrl,
-        {
-          cache: "no-store"
-        }
-      );
+    const [productsResponse, routinesResponse] = await Promise.all([
+      fetch(CONFIG.productsUrl, { cache: "no-store" }),
+      fetch(CONFIG.routinesUrl, { cache: "no-store" })
+    ]);
 
-    if (!response.ok) {
-      throw new Error(
-        `HTTP ${response.status}`
-      );
+    if (!productsResponse.ok) {
+      throw new Error(`HTTP productos ${productsResponse.status}`);
     }
 
-    const data =
-      await response.json();
-
-    if (
-      !data ||
-      !Array.isArray(
-        data.products
-      )
-    ) {
-      throw new Error(
-        "productos.json inválido"
-      );
+    const productData = await productsResponse.json();
+    if (!productData || !Array.isArray(productData.products)) {
+      throw new Error("productos.json inválido");
     }
 
-    state.products =
-      data.products.filter(
-        (product) =>
-          product
-      );
+    let routines = [];
+    if (routinesResponse.ok) {
+      const routineData = await routinesResponse.json();
+      routines = Array.isArray(routineData?.routines) ? routineData.routines : [];
+    } else {
+      console.warn("No se pudo cargar routines.json; el catálogo continuará sin rutinas.");
+    }
+
+    state.products = [...productData.products, ...routines].filter(Boolean);
 
     populateBrands();
 
@@ -1582,7 +1576,7 @@ function renderBrandShowcase() {
 
 function getProductTagInfo(product) {
   if (isCombo(product)) {
-    return { text: "Combo Botanika", className: "tag--combo" };
+    return { text: product.label || "Rutina Botanika", className: "tag--combo" };
   }
 
   if (product.available === false) {
@@ -1646,10 +1640,10 @@ function productCardHTML(product) {
         </button>
       </div>
       <div class="product-content">
-        <span class="product-brand">${escapeHTML(combo ? "Colección Botanika" : (product.brand || product.category))}</span>
+        <span class="product-brand">${escapeHTML(combo ? "BOTANIKA · RUTINA" : (product.brand || product.category))}</span>
         <button type="button" class="product-name" data-action="details">${escapeHTML(product.name)}</button>
-        <span class="product-sub">${escapeHTML(combo ? `${included.length} productos incluidos` : (product.subcategory || ""))}</span>
-        ${combo ? `<div class="combo-mini-list">${included.slice(0,3).map(item => `<span><i class="bx bx-check"></i>${escapeHTML(item.name)}</span>`).join("")}</div>` : ""}
+        <span class="product-sub">${escapeHTML(combo ? (product.subcategory || `${included.length} productos incluidos`) : (product.subcategory || ""))}</span>
+        ${combo ? `<div class="combo-summary"><span><i class="bx bx-package"></i>${included.length} productos</span>${Array.isArray(product.idealFor) && product.idealFor[0] ? `<span><i class="bx bx-sparkles"></i>${escapeHTML(product.idealFor[0])}</span>` : ""}</div><div class="combo-mini-list">${included.slice(0,3).map(item => `<span><i class="bx bx-check"></i>${escapeHTML(item.name)}</span>`).join("")}</div>` : ""}
         <div class="product-price-wrap ${combo ? "product-price-wrap--combo" : ""}">
           ${regularPrice > Number(product.price) ? `<span class="product-old-price">${formatPrice(regularPrice, product.currency || "CRC")}</span>` : ""}
           <strong class="product-price">${formatPrice(product.price, product.currency || "CRC")}</strong>
@@ -1657,7 +1651,7 @@ function productCardHTML(product) {
         </div>
         ${combo ? "" : `<div class="swatches">${colors.slice(0,6).map((color,index)=>`<button type="button" class="swatch ${index===0?"selected":""}" data-action="color" data-color="${escapeHTML(color.name)}" data-image="${escapeHTML(color.image || product.image || CONFIG.fallbackImage)}" style="--swatch:${escapeHTML(color.value || "#cccccc")};" title="${escapeHTML(color.name)}" aria-label="Seleccionar color ${escapeHTML(color.name)}"></button>`).join("")}</div>`}
         <div class="product-actions">
-          <button type="button" class="add-cart add-cart-icon" data-action="add-cart" aria-label="${product.available === false ? "Producto agotado" : `Agregar ${escapeHTML(product.name)} al carrito`}" title="${product.available === false ? "Producto agotado" : (combo ? "Agregar combo" : "Agregar al carrito")}" ${product.available === false ? "disabled" : ""}><i class="bx ${product.available === false ? "bx-x-circle" : (combo ? "bx-gift" : "bxs-shopping-bag")}"></i></button>
+          <button type="button" class="add-cart add-cart-icon" data-action="add-cart" aria-label="${product.available === false ? "Producto agotado" : `Agregar ${escapeHTML(product.name)} al carrito`}" title="${product.available === false ? "Producto agotado" : (combo ? "Agregar rutina" : "Agregar al carrito")}" ${product.available === false ? "disabled" : ""}><i class="bx ${product.available === false ? "bx-x-circle" : (combo ? "bx-leaf" : "bxs-shopping-bag")}"></i></button>
           <button type="button" class="details details-icon" data-action="details" aria-label="Ver detalle de ${escapeHTML(product.name)}" title="${combo ? "Ver combo" : "Ver detalle"}"><i class="bx bx-show"></i></button>
           <button type="button" class="share-product" data-action="share" aria-label="Compartir ${escapeHTML(product.name)} por WhatsApp" title="Compartir por WhatsApp"><i class="bx bxl-whatsapp"></i></button>
         </div>
@@ -1817,7 +1811,7 @@ function addToCart(
 
   renderCart();
 
-  toast(isCombo(product) ? "Combo agregado al carrito" : "Producto agregado al carrito");
+  toast(isCombo(product) ? "Rutina agregada al carrito" : "Producto agregado al carrito");
 
   openCart();
 }
@@ -2266,22 +2260,47 @@ function sendCartWhatsApp() {
 function renderModalCombo(product) {
   const section = $("#modal-combo");
   if (!section) return;
+
   if (!isCombo(product)) {
     section.hidden = true;
     return;
   }
+
   const items = comboResolvedItems(product);
   const regular = comboRegularPrice(product);
   const saving = comboSaving(product);
+  const idealFor = Array.isArray(product.idealFor) ? product.idealFor : [];
+  const benefits = Array.isArray(product.benefits) ? product.benefits : [];
+
   $("#modal-combo-count").textContent = `${items.length} productos`;
   $("#modal-combo-items").innerHTML = items.map(item => `
     <article class="modal-combo-item">
-      <img src="${escapeHTML(item.image || CONFIG.fallbackImage)}" alt="${escapeHTML(item.name)}">
+      <img src="${escapeHTML(item.image || CONFIG.fallbackImage)}" alt="${escapeHTML(item.name)}" loading="lazy">
       <span><strong>${escapeHTML(item.name)}</strong><small>${item.quantity > 1 ? `Cantidad: ${item.quantity}` : escapeHTML(item.brand || "")}</small></span>
       <i class="bx bx-check-circle"></i>
     </article>`).join("");
+
   $("#modal-combo-regular").textContent = formatPrice(regular, product.currency || "CRC");
   $("#modal-combo-saving").textContent = formatPrice(saving, product.currency || "CRC");
+
+  const idealContainer = $("#modal-combo-ideal");
+  if (idealContainer) {
+    idealContainer.innerHTML = idealFor.map(item => `<span><i class="bx bx-heart"></i>${escapeHTML(item)}</span>`).join("");
+    idealContainer.hidden = idealFor.length === 0;
+  }
+
+  const benefitsContainer = $("#modal-combo-benefits");
+  if (benefitsContainer) {
+    benefitsContainer.innerHTML = benefits.map(item => `<li><i class="bx bx-check"></i><span>${escapeHTML(item)}</span></li>`).join("");
+    benefitsContainer.closest(".modal-combo__benefits").hidden = benefits.length === 0;
+  }
+
+  const usage = $("#modal-combo-usage");
+  if (usage) {
+    usage.textContent = product.usage || "";
+    usage.closest(".modal-combo__usage").hidden = !product.usage;
+  }
+
   section.hidden = false;
 }
 
@@ -2392,7 +2411,7 @@ function openModal(id) {
 
     modalAddButton.innerHTML =
       isAvailable
-        ? (isCombo(product) ? '<i class="bx bx-gift"></i><span>Agregar combo</span>' : '<i class="bx bxs-shopping-bag"></i><span>Agregar al carrito</span>')
+        ? (isCombo(product) ? '<i class="bx bx-gift"></i><span>Agregar rutina</span>' : '<i class="bx bxs-shopping-bag"></i><span>Agregar al carrito</span>')
         : '<i class="bx bx-x-circle"></i><span>Producto agotado</span>';
   }
 
@@ -2888,9 +2907,9 @@ function updateModalWhatsApp(product) {
   if (!button || !product) return;
   const lines = ["Hola Botanika CR,", "", `Deseo consultar por: ${product.name}.`];
   if (isCombo(product)) {
-    lines.push("", "El combo incluye:");
+    lines.push("", "La rutina incluye:");
     comboResolvedItems(product).forEach(item => lines.push(`• ${item.name}${item.quantity > 1 ? ` (x${item.quantity})` : ""}`));
-    lines.push("", `Precio del combo: ${formatPrice(product.price, product.currency || "CRC")}.`);
+    lines.push("", `Precio de la rutina: ${formatPrice(product.price, product.currency || "CRC")}.`);
     const saving = comboSaving(product);
     if (saving > 0) lines.push(`Ahorro: ${formatPrice(saving, product.currency || "CRC")}.`);
   } else if (state.modalColor) {

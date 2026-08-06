@@ -420,66 +420,6 @@
       "new": false,
       "colors": [],
       "priority": 40
-    },
-    {
-      "id": "combo-maquillaje-diario",
-      "type": "combo",
-      "name": "Combo Maquillaje Diario",
-      "brand": "Botanika",
-      "category": "Combos",
-      "subcategory": "Kit de maquillaje",
-      "price": 14500,
-      "currency": "CRC",
-      "description": "Tres esenciales para preparar, corregir y perfeccionar un maquillaje diario de forma práctica.",
-      "image": "assets/img/combos/combo-maquillaje-diario.jpg",
-      "available": true,
-      "featured": true,
-      "new": true,
-      "offer": true,
-      "colors": [],
-      "items": [
-        {
-          "productId": "base-liquida-miracle-skin-samy",
-          "quantity": 1
-        },
-        {
-          "productId": "corrector-liquido-samy",
-          "quantity": 1
-        },
-        {
-          "productId": "corrector-dolce-bella",
-          "quantity": 1
-        }
-      ],
-      "priority": 10
-    },
-    {
-      "id": "combo-cobertura-perfecta",
-      "type": "combo",
-      "name": "Combo Cobertura Perfecta",
-      "brand": "Botanika",
-      "category": "Combos",
-      "subcategory": "Dúo de cobertura",
-      "price": 13500,
-      "currency": "CRC",
-      "description": "Base y corrector de alta cobertura para lograr un acabado uniforme y duradero.",
-      "image": "assets/img/combos/combo-cobertura-perfecta.jpg",
-      "available": true,
-      "featured": true,
-      "new": false,
-      "offer": true,
-      "colors": [],
-      "items": [
-        {
-          "productId": "base-flawless-stay-beauty-creations",
-          "quantity": 1
-        },
-        {
-          "productId": "corrector-liquido-flawless-beauty-creations",
-          "quantity": 1
-        }
-      ],
-      "priority": 20
     }
   ]
 }

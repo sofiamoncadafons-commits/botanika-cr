@@ -13010,3 +13010,194 @@ img {
     order: 4;
   }
 }
+
+
+/* =========================================================
+   BOTANIKA CR v6.2.0 · RUTINAS BOTANIKA · MOBILE FIRST
+   ========================================================= */
+.quick-filter--combo{
+  border-color:#a86f5a;
+  color:#704739;
+  background:linear-gradient(135deg,#fffaf7,#f7ece6);
+}
+.quick-filter--combo i{font-size:1rem}
+.quick-filter--combo.is-active,.quick-filter--combo:hover{
+  background:linear-gradient(135deg,#545b55,#6f786f);
+  border-color:#545b55;
+  color:#fff;
+}
+.tag--combo{
+  background:linear-gradient(135deg,#545b55,#788278);
+  color:#fff;
+  letter-spacing:.08em;
+}
+.product-card--combo{
+  border:1px solid rgba(168,111,90,.32);
+  background:linear-gradient(180deg,#fffdfb 0%,#fbf3ee 100%);
+  box-shadow:0 16px 40px rgba(84,91,85,.12);
+}
+.product-card--combo::before{
+  content:"";
+  position:absolute;
+  inset:0 0 auto;
+  height:4px;
+  background:linear-gradient(90deg,#545b55,#c68b73,#e8b7ba);
+  z-index:3;
+}
+.product-card--combo .product-media{
+  background:linear-gradient(145deg,#eee6df,#faf6f2);
+}
+.product-card--combo .product-image{object-fit:cover}
+.product-card--combo .product-brand{
+  color:#6b5147;
+  letter-spacing:.13em;
+  font-weight:800;
+}
+.product-card--combo .product-name{
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:1.08rem;
+  line-height:1.18;
+}
+.combo-summary{
+  display:flex;
+  flex-wrap:wrap;
+  gap:.4rem;
+  margin:.55rem 0 .35rem;
+}
+.combo-summary span{
+  display:inline-flex;
+  align-items:center;
+  gap:.28rem;
+  padding:.3rem .55rem;
+  border-radius:999px;
+  background:rgba(84,91,85,.08);
+  color:#545b55;
+  font-size:.68rem;
+  font-weight:700;
+}
+.combo-summary i{color:#a86f5a;font-size:.85rem}
+.combo-mini-list{margin:.4rem 0 .7rem}
+.product-price-wrap--combo{
+  padding:.65rem .7rem;
+  border-radius:14px;
+  background:rgba(255,255,255,.72);
+}
+.combo-saving{
+  background:#e5eee7;
+  color:#405848;
+}
+.product-card--combo .add-cart{
+  background:#545b55;
+  color:#fff;
+}
+.product-card--combo .details{
+  border-color:#a86f5a;
+  color:#7a4c3d;
+  background:#fffaf7;
+}
+
+.modal-combo{
+  margin:.7rem 0 .9rem;
+  padding:.9rem;
+  border:1px solid rgba(168,111,90,.24);
+  border-radius:18px;
+  background:linear-gradient(145deg,#fffaf7,#f6eee9);
+}
+.modal-combo__heading{margin-bottom:.6rem}
+.modal-combo__ideal{
+  display:flex;
+  flex-wrap:wrap;
+  gap:.4rem;
+  margin-bottom:.75rem;
+}
+.modal-combo__ideal[hidden]{display:none}
+.modal-combo__ideal span{
+  display:inline-flex;
+  align-items:center;
+  gap:.3rem;
+  padding:.38rem .62rem;
+  border-radius:999px;
+  background:#fff;
+  border:1px solid rgba(168,111,90,.18);
+  color:#6d5146;
+  font-size:.7rem;
+  font-weight:700;
+}
+.modal-combo__ideal i{color:#c98788}
+.modal-combo__items{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:.5rem;
+}
+.modal-combo-item{
+  grid-template-columns:52px 1fr auto;
+  padding:.55rem;
+  border:1px solid rgba(84,91,85,.08);
+  box-shadow:0 6px 18px rgba(84,91,85,.05);
+}
+.modal-combo-item img{width:52px;height:52px}
+.modal-combo__benefits,.modal-combo__usage{
+  margin-top:.8rem;
+  padding-top:.75rem;
+  border-top:1px dashed rgba(84,91,85,.18);
+}
+.modal-combo__benefits[hidden],.modal-combo__usage[hidden]{display:none}
+.modal-combo__benefits ul{
+  display:grid;
+  gap:.38rem;
+  margin:.48rem 0 0;
+  padding:0;
+  list-style:none;
+}
+.modal-combo__benefits li{
+  display:flex;
+  gap:.45rem;
+  align-items:flex-start;
+  color:#5f5b57;
+  font-size:.75rem;
+  line-height:1.35;
+}
+.modal-combo__benefits li i{color:#66806e;font-size:1rem;flex:0 0 auto}
+.modal-combo__usage p{
+  margin:.45rem 0 0;
+  color:#6c625d;
+  font-size:.75rem;
+  line-height:1.45;
+}
+.modal-combo__saving{
+  margin-top:.8rem;
+  padding:.75rem;
+  border:0;
+  border-radius:14px;
+  background:#fff;
+}
+
+@media (max-width:760px){
+  .quick-filters{overflow-x:auto;flex-wrap:nowrap;justify-content:flex-start;padding-bottom:.25rem;scrollbar-width:none}
+  .quick-filters::-webkit-scrollbar{display:none}
+  .quick-filter{flex:0 0 auto;min-height:42px}
+  .product-card--combo .product-media{aspect-ratio:1.18/1}
+  .product-card--combo .product-content{padding:.9rem}
+  .product-card--combo .product-name{font-size:1rem}
+  .combo-mini-list{display:grid}
+  .combo-mini-list span:nth-child(n+3){display:none}
+  .combo-summary{margin-top:.45rem}
+  .product-price-wrap--combo{grid-template-columns:1fr auto;align-items:center}
+  .product-price-wrap--combo .product-old-price{grid-column:1/-1}
+  .combo-saving{font-size:.66rem;white-space:nowrap}
+  .modal-combo{padding:.75rem;border-radius:16px}
+  .modal-combo__heading{align-items:flex-start;gap:.5rem}
+  .modal-combo__ideal{overflow-x:auto;flex-wrap:nowrap;padding-bottom:.15rem;scrollbar-width:none}
+  .modal-combo__ideal::-webkit-scrollbar{display:none}
+  .modal-combo__ideal span{flex:0 0 auto}
+  .modal-combo-item{grid-template-columns:46px minmax(0,1fr) auto;gap:.55rem}
+  .modal-combo-item img{width:46px;height:46px}
+  .modal-combo-item strong{font-size:.76rem}
+  .modal-combo__saving{align-items:stretch;flex-direction:row;justify-content:space-between;gap:.6rem}
+  .modal-combo__saving span,.modal-combo__saving strong{display:grid;gap:.12rem}
+}
+
+@media (min-width:761px){
+  .product-card--combo .product-media{min-height:260px}
+  .modal-combo__items{grid-template-columns:repeat(2,minmax(0,1fr))}
+}

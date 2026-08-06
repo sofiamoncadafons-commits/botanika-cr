@@ -6,7 +6,7 @@
   <title>Botanika CR | Catálogo</title>
   <meta name="description" content="Catálogo de maquillaje, skincare y belleza de Botanika CR.">
   <link href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/styles.css?v=6.1.1">
+  <link rel="stylesheet" href="assets/css/styles.css?v=6.2.0">
   <link rel="manifest" href="manifest.webmanifest">
   <meta name="theme-color" content="#545b55">
   <meta name="application-name" content="Botanika CR">
@@ -292,7 +292,7 @@
         <button type="button" class="quick-filter" data-quick-filter="featured"><i class="bx bx-star"></i> Destacados</button>
         <button type="button" class="quick-filter" data-quick-filter="offer"><i class="bx bx-purchase-tag"></i> Ofertas</button>
         <button type="button" class="quick-filter" data-quick-filter="available"><i class="bx bx-check-circle"></i> Disponibles</button>
-        <button type="button" class="quick-filter quick-filter--combo" data-quick-filter="combo"><i class="bx bx-gift"></i> Combos</button>
+        <button type="button" class="quick-filter quick-filter--combo" data-quick-filter="combo"><i class="bx bx-gift"></i> Rutinas</button>
       </div>
 
       <div id="products-container" class="container product-grid"></div>
@@ -584,10 +584,19 @@
 
         <section id="modal-combo" class="modal-combo" hidden>
           <div class="modal-combo__heading">
-            <span class="eyebrow">Incluye</span>
+            <span class="eyebrow">Esta rutina incluye</span>
             <strong id="modal-combo-count"></strong>
           </div>
+          <div id="modal-combo-ideal" class="modal-combo__ideal" hidden></div>
           <div id="modal-combo-items" class="modal-combo__items"></div>
+          <div class="modal-combo__benefits" hidden>
+            <span class="eyebrow">Beneficios</span>
+            <ul id="modal-combo-benefits"></ul>
+          </div>
+          <div class="modal-combo__usage" hidden>
+            <span class="eyebrow">Cómo usarla</span>
+            <p id="modal-combo-usage"></p>
+          </div>
           <div class="modal-combo__saving">
             <span>Precio individual <del id="modal-combo-regular"></del></span>
             <strong>Ahorra <span id="modal-combo-saving"></span></strong>
@@ -684,6 +693,6 @@
 
   <div id="toast" class="toast"></div>
 
-  <script src="assets/js/main.js?v=6.1.1"></script>
+  <script src="assets/js/main.js?v=6.2.0"></script>
 </body>
 </html>
