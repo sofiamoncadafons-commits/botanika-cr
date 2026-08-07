@@ -13569,3 +13569,48 @@ body.trust-policy-open{overflow:hidden}
   .trust-steps{grid-template-columns:1fr;gap:.5rem}
   .trust-policy__whatsapp{position:sticky;bottom:.5rem;width:100%;min-width:0;box-shadow:0 7px 22px rgba(47,55,49,.2)}
 }
+
+/*==================================================
+  V7.3.1 · NORMALIZACIÓN TIPOGRÁFICA DEL MENÚ
+  Compra con Confianza es un <button>; se normaliza
+  para que se vea idéntico a los enlaces del header.
+==================================================*/
+.nav-menu .nav-link--button {
+  -webkit-appearance: none;
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: auto;
+  min-width: 0;
+  height: auto;
+  margin: 0;
+  padding: .32rem .05rem !important;
+  border: 0;
+  border-radius: 0;
+  color: var(--ds-green-800,#3f4741);
+  background: transparent;
+  font-family: inherit !important;
+  font-size: .72rem !important;
+  font-style: normal;
+  font-weight: 700 !important;
+  line-height: 1.6 !important;
+  letter-spacing: .012rem !important;
+  text-align: left;
+  text-transform: none;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.nav-menu .nav-link--button:hover,
+.nav-menu .nav-link--button:focus-visible {
+  color: var(--ds-pink-700,#c9827d);
+}
+
+@media (max-width: 760px) {
+  .nav-menu .nav-link--button {
+    display: flex;
+    width: 100%;
+    white-space: normal;
+  }
+}
