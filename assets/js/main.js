@@ -2005,6 +2005,34 @@ function cartTotal() {
 }
 
 
+function cartItemRegularUnitPrice(item = {}) {
+  const product = productById(item.id);
+  if (!product) return Number(item.price || 0);
+
+  if (isCombo(product)) {
+    const regular = comboRegularPrice(product);
+    return regular > Number(item.price || 0)
+      ? regular
+      : Number(item.price || 0);
+  }
+
+  const oldPrice = Number(product.oldPrice || product.old_price || 0);
+  return oldPrice > Number(item.price || 0)
+    ? oldPrice
+    : Number(item.price || 0);
+}
+
+function cartRegularTotal() {
+  return state.cart.reduce((total, item) => {
+    return total + cartItemRegularUnitPrice(item) * Number(item.quantity || 0);
+  }, 0);
+}
+
+function cartSavingsTotal() {
+  return Math.max(0, cartRegularTotal() - cartTotal());
+}
+
+
 /*==================================
   MOSTRAR CARRITO
 ==================================*/
@@ -2051,6 +2079,15 @@ function renderCart() {
   const totalElement =
     $("#cart-total");
 
+  const regularTotalElement =
+    $("#cart-regular-total");
+
+  const savingsElement =
+    $("#cart-savings");
+
+  const savingsRow =
+    $("#cart-savings-row");
+
   const clearButton =
     $("#cart-clear");
 
@@ -2093,8 +2130,16 @@ function renderCart() {
     container.innerHTML =
       state.cart
         .map(
-          (item) => `
-            <article class="cart-item">
+          (item) => {
+            const product = productById(item.id);
+            const combo = product ? isCombo(product) : false;
+            const unitRegular = cartItemRegularUnitPrice(item);
+            const unitSaving = Math.max(0, unitRegular - Number(item.price || 0));
+            const lineTotal = Number(item.price || 0) * Number(item.quantity || 0);
+            const lineSaving = unitSaving * Number(item.quantity || 0);
+
+            return `
+            <article class="cart-item ${combo ? "cart-item--combo" : ""}">
 
               <img
                 src="${escapeHTML(
@@ -2111,6 +2156,8 @@ function renderCart() {
               >
 
               <div>
+
+                ${combo ? `<span class="cart-item__badge"><i class="bx bx-gift"></i> Combo Botanika</span>` : ""}
 
                 <small>
                   ${escapeHTML(
@@ -2137,13 +2184,21 @@ function renderCart() {
                     : ""
                 }
 
-                <strong>
-                  ${formatPrice(
-                    item.price,
-                    item.currency ||
-                    "CRC"
-                  )}
-                </strong>
+                <div class="cart-item__price-row">
+                  <strong>
+                    ${formatPrice(
+                      item.price,
+                      item.currency ||
+                      "CRC"
+                    )}
+                  </strong>
+                  ${unitRegular > Number(item.price || 0) ? `<del>${formatPrice(unitRegular, item.currency || "CRC")}</del>` : ""}
+                </div>
+
+                <div class="cart-item__meta-row">
+                  <span>Subtotal: ${formatPrice(lineTotal, item.currency || "CRC")}</span>
+                  ${lineSaving > 0 ? `<span class="cart-item__saving">Ahorras ${formatPrice(lineSaving, item.currency || "CRC")}</span>` : ""}
+                </div>
 
                 <div class="cart-controls">
 
@@ -2194,15 +2249,30 @@ function renderCart() {
               </div>
 
             </article>
-          `
+          `;
+          }
         )
         .join("");
   }
 
+  const currentTotal = cartTotal();
+  const regularTotal = cartRegularTotal();
+  const savingsTotal = cartSavingsTotal();
+
   totalElement.textContent =
-    formatPrice(
-      cartTotal()
-    );
+    formatPrice(currentTotal);
+
+  if (regularTotalElement) {
+    regularTotalElement.textContent = formatPrice(regularTotal);
+  }
+
+  if (savingsElement) {
+    savingsElement.textContent = formatPrice(savingsTotal);
+  }
+
+  if (savingsRow) {
+    savingsRow.hidden = savingsTotal <= 0;
+  }
 
   if (clearButton) {
     clearButton.disabled =
@@ -2561,6 +2631,23 @@ function openModal(id) {
     modalDescription.textContent = product.description || "";
   }
 
+  const modalMetaBrand = $("#modal-meta-brand");
+  const modalMetaCategory = $("#modal-meta-category");
+  const modalMetaStatus = $("#modal-meta-status");
+
+  if (modalMetaBrand) {
+    modalMetaBrand.textContent = product.brand || "Botanika";
+  }
+
+  if (modalMetaCategory) {
+    modalMetaCategory.textContent = product.subcategory || product.category || "Catálogo";
+  }
+
+  if (modalMetaStatus) {
+    modalMetaStatus.textContent = product.available === false ? "Agotado" : "Disponible";
+    modalMetaStatus.classList.toggle("is-unavailable", product.available === false);
+  }
+
   renderModalCombo(product);
 
   renderModalGallery(
@@ -2576,6 +2663,8 @@ function openModal(id) {
   renderRelatedProducts(
     product
   );
+
+  renderCompletePurchase(product);
 
   updateModalWhatsApp(
     product
@@ -2881,112 +2970,101 @@ function renderModalColors(
   PRODUCTOS RELACIONADOS
 ==================================*/
 
-function renderRelatedProducts(
-  product
-) {
-  const container =
-    $("#related-products");
+function relatedProductScore(item, product) {
+  let score = 0;
 
-  if (!container) {
+  if (item.available !== false) score += 8;
+  if (item.subcategory && item.subcategory === product.subcategory) score += 7;
+  if (item.category && item.category === product.category) score += 5;
+  if (item.brand && item.brand === product.brand) score += 3;
+  if (item.featured) score += 2;
+  if (item.new) score += 1;
+
+  score -= Math.max(0, Number(item.priority || 50)) / 100;
+  return score;
+}
+
+function renderRelatedProducts(product) {
+  const container = $("#related-products");
+  if (!container) return;
+
+  const related = state.products
+    .filter((item) => item.id !== product.id && !isCombo(item))
+    .sort((a, b) => relatedProductScore(b, product) - relatedProductScore(a, product))
+    .slice(0, 4);
+
+  if (related.length === 0) {
+    container.innerHTML = `<p class="muted">No hay productos relacionados.</p>`;
     return;
   }
 
-  const related =
-    state.products
-      .filter(
-        (item) =>
-          item.id !== product.id
-      )
-      .sort(
-        (a, b) => {
-          const score =
-            (item) =>
-              Number(
-                item.category ===
-                  product.category
-              ) * 2 +
-              Number(
-                item.brand ===
-                  product.brand
-              );
+  container.innerHTML = related.map((item) => `
+    <button type="button" class="related-card" data-related="${escapeHTML(item.id)}">
+      <span class="related-card__media">
+        <img src="${escapeHTML(item.image || CONFIG.fallbackImage)}" alt="${escapeHTML(item.name)}" loading="lazy" decoding="async" width="68" height="68">
+      </span>
+      <small>${escapeHTML(item.brand || item.category || "")}</small>
+      <span>${escapeHTML(item.name)}</span>
+      <strong>${formatPrice(item.price, item.currency || "CRC")}</strong>
+    </button>
+  `).join("");
+}
 
-          return (
-            score(b) -
-            score(a)
-          );
-        }
-      )
-      .slice(
-        0,
-        4
-      );
+function complementaryCandidates(product) {
+  if (isCombo(product)) return [];
 
-  if (
-    related.length === 0
-  ) {
-    container.innerHTML = `
-      <p class="muted">
-        No hay productos relacionados.
-      </p>
-    `;
+  const currentSub = String(product.subcategory || "").toLowerCase();
+  const preferredSub = currentSub.includes("base")
+    ? "corrector"
+    : currentSub.includes("corrector")
+      ? "base"
+      : "";
 
+  return state.products
+    .filter((item) => {
+      if (item.id === product.id || isCombo(item) || item.available === false) return false;
+      if (item.category !== product.category) return false;
+      if (!preferredSub) return item.subcategory !== product.subcategory;
+      return String(item.subcategory || "").toLowerCase().includes(preferredSub);
+    })
+    .sort((a, b) => relatedProductScore(b, product) - relatedProductScore(a, product))
+    .slice(0, 3);
+}
+
+function renderCompletePurchase(product) {
+  const section = $("#complete-purchase");
+  const container = $("#complete-purchase-items");
+  const addAll = $("#complete-purchase-add-all");
+  if (!section || !container) return;
+
+  const items = complementaryCandidates(product);
+  section.hidden = items.length === 0;
+  section.dataset.productIds = items.map((item) => item.id).join("|");
+
+  if (items.length === 0) {
+    container.innerHTML = "";
     return;
   }
 
-  container.innerHTML =
-    related
-      .map(
-        (item) => `
-          <button
-            type="button"
-            class="related-card"
-            data-related="${escapeHTML(
-              item.id
-            )}"
-          >
+  container.innerHTML = items.map((item) => `
+    <article class="complete-purchase__card">
+      <button type="button" class="complete-purchase__media" data-related="${escapeHTML(item.id)}" aria-label="Ver ${escapeHTML(item.name)}">
+        <img src="${escapeHTML(item.image || CONFIG.fallbackImage)}" alt="${escapeHTML(item.name)}" loading="lazy" decoding="async">
+      </button>
+      <div class="complete-purchase__info">
+        <small>${escapeHTML(item.brand || item.subcategory || "")}</small>
+        <strong>${escapeHTML(item.name)}</strong>
+        <span>${formatPrice(item.price, item.currency || "CRC")}</span>
+      </div>
+      <button type="button" class="complete-purchase__add" data-cross-add="${escapeHTML(item.id)}" aria-label="Agregar ${escapeHTML(item.name)} al carrito">
+        <i class="bx bx-plus"></i>
+      </button>
+    </article>
+  `).join("");
 
-            <span class="related-card__media">
-              <img
-                src="${escapeHTML(
-                  item.image ||
-                  CONFIG.fallbackImage
-                )}"
-                alt="${escapeHTML(
-                  item.name
-                )}"
-                loading="lazy"
-                decoding="async"
-                width="68"
-                height="68"
-              >
-            </span>
-
-            <small>
-              ${escapeHTML(
-                item.brand ||
-                item.category ||
-                ""
-              )}
-            </small>
-
-            <span>
-              ${escapeHTML(
-                item.name
-              )}
-            </span>
-
-            <strong>
-              ${formatPrice(
-                item.price,
-                item.currency ||
-                "CRC"
-              )}
-            </strong>
-
-          </button>
-        `
-      )
-      .join("");
+  if (addAll) {
+    addAll.innerHTML = `<i class="bx bx-plus-circle"></i> Agregar ${items.length} sugeridos`;
+  }
 }
 
 
@@ -4958,6 +5036,39 @@ function initEvents() {
 
 
 
+  /*===== VENTA SUGERIDA DEL MODAL =====*/
+
+  $("#complete-purchase")
+    ?.addEventListener("click", (event) => {
+      const add = event.target.closest("[data-cross-add]");
+      const related = event.target.closest("[data-related]");
+
+      if (add) {
+        addToCart(add.dataset.crossAdd);
+        replayAnimation(add, "add-cart--success");
+        return;
+      }
+
+      if (related) {
+        openModal(related.dataset.related);
+      }
+    });
+
+  $("#complete-purchase-add-all")
+    ?.addEventListener("click", () => {
+      const section = $("#complete-purchase");
+      const ids = String(section?.dataset.productIds || "")
+        .split("|")
+        .filter(Boolean);
+
+      ids.forEach((id) => addToCart(id));
+
+      if (ids.length) {
+        toast(`${ids.length} productos sugeridos agregados al carrito`);
+      }
+    });
+
+
   /*===== CANTIDAD DEL MODAL =====*/
 
   $("#modal-quantity-minus")
@@ -5095,6 +5206,10 @@ function initEvents() {
 function openTrustPolicy() {
   const modal = $("#trust-policy-modal");
   if (!modal) return;
+
+  // Cerrar paneles abiertos para que la política se muestre sin superposiciones.
+  closeCart();
+  closeFavorites();
 
   // Cerrar menú móvil sin interferir con el resto de la navegación.
   const menu = $("#nav-menu");
@@ -5372,3 +5487,35 @@ if (
 } else {
   startBotanika();
 }
+
+/* =========================================================
+   BOTANIKA CR v7.6.0 · FILTROS MOBILE-FIRST
+   ========================================================= */
+(function initMobileCatalogFilters() {
+  const toggle = document.getElementById("catalog-filter-toggle");
+  const panel = document.getElementById("catalog-select-filters");
+
+  if (!toggle || !panel) return;
+
+  const setOpen = (open) => {
+    panel.classList.toggle("is-open", open);
+    toggle.setAttribute("aria-expanded", String(open));
+  };
+
+  toggle.addEventListener("click", () => {
+    setOpen(toggle.getAttribute("aria-expanded") !== "true");
+  });
+
+  /* Si se vuelve a escritorio, dejamos que CSS restaure el layout
+     original mediante display:contents y reiniciamos el estado móvil. */
+  const desktopQuery = window.matchMedia("(min-width: 761px)");
+  const handleViewportChange = (event) => {
+    if (event.matches) setOpen(false);
+  };
+
+  if (typeof desktopQuery.addEventListener === "function") {
+    desktopQuery.addEventListener("change", handleViewportChange);
+  } else if (typeof desktopQuery.addListener === "function") {
+    desktopQuery.addListener(handleViewportChange);
+  }
+})();

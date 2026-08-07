@@ -6,7 +6,7 @@
   <title>Botanika CR | Catálogo</title>
   <meta name="description" content="Catálogo de maquillaje, skincare y belleza de Botanika CR.">
   <link href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/styles.css?v=7.4.0">
+  <link rel="stylesheet" href="assets/css/styles.css?v=8.0.2">
   <link rel="manifest" href="manifest.webmanifest">
   <meta name="theme-color" content="#545b55">
   <meta name="application-name" content="Botanika CR">
@@ -245,45 +245,58 @@
           ></div>
         </div>
 
-        <select id="category-filter">
-          <option value="all">Todas las categorías</option>
-          <option value="Maquillaje">Maquillaje</option>
-          <option value="Skincare">Skincare</option>
-          <option value="Accesorios">Accesorios</option>
-          <option value="Cuidado corporal">Cuidado corporal</option>
-          <option value="Cabello">Cabello</option>
-          <option value="Combos">Combos Botanika</option>
-        </select>
-
-        <select id="brand-filter"><option value="all">Todas las marcas</option></select>
-
-        <select id="price-filter">
-          <option value="all">Todos los precios</option>
-          <option value="0-5000">Hasta ₡5.000</option>
-          <option value="5001-10000">₡5.001 – ₡10.000</option>
-          <option value="10001-15000">₡10.001 – ₡15.000</option>
-          <option value="15001+">Más de ₡15.000</option>
-        </select>
-
-        <select
-          id="product-sort"
-          aria-label="Ordenar productos"
-          title="Ordenar productos"
+        <button
+          id="catalog-filter-toggle"
+          class="catalog-filter-toggle"
+          type="button"
+          aria-expanded="false"
+          aria-controls="catalog-select-filters"
         >
-          <option value="default">Orden: recomendados</option>
-          <option value="new-first">Nuevos primero</option>
-          <option value="offers-first">Ofertas primero</option>
-          <option value="price-asc">Precio: menor a mayor</option>
-          <option value="price-desc">Precio: mayor a menor</option>
-          <option value="name-asc">Nombre: A–Z</option>
-        </select>
+          <span><i class="bx bx-slider-alt" aria-hidden="true"></i> Filtros y orden</span>
+          <i class="bx bx-chevron-down catalog-filter-toggle__chevron" aria-hidden="true"></i>
+        </button>
 
-        <select id="page-size">
-          <option value="8">Mostrar 8</option>
-          <option value="12" selected>Mostrar 12</option>
-          <option value="24">Mostrar 24</option>
-          <option value="all">Mostrar todos</option>
-        </select>
+        <div id="catalog-select-filters" class="catalog-select-filters">
+          <select id="category-filter" aria-label="Filtrar por categoría">
+            <option value="all">Todas las categorías</option>
+            <option value="Maquillaje">Maquillaje</option>
+            <option value="Skincare">Skincare</option>
+            <option value="Accesorios">Accesorios</option>
+            <option value="Cuidado corporal">Cuidado corporal</option>
+            <option value="Cabello">Cabello</option>
+            <option value="Combos">Combos Botanika</option>
+          </select>
+
+          <select id="brand-filter" aria-label="Filtrar por marca"><option value="all">Todas las marcas</option></select>
+
+          <select id="price-filter" aria-label="Filtrar por precio">
+            <option value="all">Todos los precios</option>
+            <option value="0-5000">Hasta ₡5.000</option>
+            <option value="5001-10000">₡5.001 – ₡10.000</option>
+            <option value="10001-15000">₡10.001 – ₡15.000</option>
+            <option value="15001+">Más de ₡15.000</option>
+          </select>
+
+          <select
+            id="product-sort"
+            aria-label="Ordenar productos"
+            title="Ordenar productos"
+          >
+            <option value="default">Orden: recomendados</option>
+            <option value="new-first">Nuevos primero</option>
+            <option value="offers-first">Ofertas primero</option>
+            <option value="price-asc">Precio: menor a mayor</option>
+            <option value="price-desc">Precio: mayor a menor</option>
+            <option value="name-asc">Nombre: A–Z</option>
+          </select>
+
+          <select id="page-size" aria-label="Cantidad de productos por página">
+            <option value="8">Mostrar 8</option>
+            <option value="12" selected>Mostrar 12</option>
+            <option value="24">Mostrar 24</option>
+            <option value="all">Mostrar todos</option>
+          </select>
+        </div>
       </div>
 
       <div class="container quick-filters" id="quick-filters">
@@ -542,14 +555,24 @@
     <div id="cart-items" class="cart-items"></div>
 
     <div class="drawer-foot drawer-foot--premium">
-      <div class="cart-summary">
+      <div class="cart-summary cart-summary--v802">
         <div class="cart-summary__row">
           <span>Productos</span>
           <strong id="cart-items-count">0</strong>
         </div>
 
-        <div class="cart-summary__row cart-summary__row--total">
+        <div class="cart-summary__row">
           <span>Subtotal</span>
+          <strong id="cart-regular-total">₡0</strong>
+        </div>
+
+        <div id="cart-savings-row" class="cart-summary__row cart-summary__row--saving" hidden>
+          <span><i class="bx bx-leaf"></i> Ahorro</span>
+          <strong id="cart-savings">₡0</strong>
+        </div>
+
+        <div class="cart-summary__row cart-summary__row--total">
+          <span>Total</span>
           <strong id="cart-total">₡0</strong>
         </div>
 
@@ -557,6 +580,15 @@
           El costo de envío se coordina por WhatsApp.
         </p>
       </div>
+
+      <button type="button" class="cart-trust" data-open-trust>
+        <span class="cart-trust__icon"><i class="bx bx-shield-quarter"></i></span>
+        <span>
+          <strong>Compra con confianza</strong>
+          <small>Consulte cambios y devoluciones</small>
+        </span>
+        <i class="bx bx-chevron-right cart-trust__arrow"></i>
+      </button>
 
       <div class="cart-footer-actions">
         <button
@@ -653,6 +685,21 @@
 
         <p id="modal-description" class="modal-description"></p>
 
+        <div class="modal-product-meta" aria-label="Información del producto">
+          <div class="modal-product-meta__item">
+            <i class="bx bx-purchase-tag-alt"></i>
+            <span><small>Marca</small><strong id="modal-meta-brand">—</strong></span>
+          </div>
+          <div class="modal-product-meta__item">
+            <i class="bx bx-category-alt"></i>
+            <span><small>Categoría</small><strong id="modal-meta-category">—</strong></span>
+          </div>
+          <div class="modal-product-meta__item">
+            <i class="bx bx-check-shield"></i>
+            <span><small>Estado</small><strong id="modal-meta-status">Disponible</strong></span>
+          </div>
+        </div>
+
         <section id="modal-combo" class="modal-combo" hidden>
           <div class="modal-combo__heading">
             <span class="eyebrow">Este combo incluye</span>
@@ -665,7 +712,7 @@
             <ul id="modal-combo-benefits"></ul>
           </div>
           <div class="modal-combo__usage" hidden>
-            <span class="eyebrow">Cómo usarla</span>
+            <span class="eyebrow">Cómo aprovechar el combo</span>
             <p id="modal-combo-usage"></p>
           </div>
           <div class="modal-combo__saving">
@@ -721,7 +768,17 @@
           <i class="bx bx-chevron-right" aria-hidden="true"></i>
         </button>
 
-        <div class="modal-actions modal-actions--premium">
+        <div class="modal-purchase-row">
+          <div class="modal-quantity">
+            <span>Cantidad</span>
+            <div class="modal-quantity__control" aria-label="Cantidad del producto">
+              <button id="modal-quantity-minus" type="button" aria-label="Reducir cantidad"><i class="bx bx-minus"></i></button>
+              <strong id="modal-quantity" aria-live="polite">1</strong>
+              <button id="modal-quantity-plus" type="button" aria-label="Aumentar cantidad"><i class="bx bx-plus"></i></button>
+            </div>
+          </div>
+
+          <div class="modal-actions modal-actions--premium">
           <button
             id="modal-add-cart"
             type="button"
@@ -743,7 +800,21 @@
             <i class="bx bxl-whatsapp"></i>
             Consultar por WhatsApp
           </a>
+          </div>
         </div>
+
+        <section id="complete-purchase" class="complete-purchase" hidden>
+          <div class="complete-purchase__heading">
+            <div>
+              <span class="eyebrow">Completa tu look</span>
+              <h3>Combina este producto</h3>
+            </div>
+            <button id="complete-purchase-add-all" type="button" class="complete-purchase__all">
+              <i class="bx bx-plus-circle"></i> Agregar sugeridos
+            </button>
+          </div>
+          <div id="complete-purchase-items" class="complete-purchase__items"></div>
+        </section>
 
         <div class="related">
           <div class="related-heading">
@@ -772,6 +843,6 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="assets/js/supabase-config.js?v=7.0.0"></script>
-  <script src="assets/js/main.js?v=7.4.0"></script>
+  <script src="assets/js/main.js?v=8.0.2"></script>
 </body>
 </html>
