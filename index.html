@@ -6,7 +6,7 @@
   <title>Botanika CR | Catálogo</title>
   <meta name="description" content="Catálogo de maquillaje, skincare y belleza de Botanika CR.">
   <link href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/styles.css?v=7.0.0">
+  <link rel="stylesheet" href="assets/css/styles.css?v=7.3.0">
   <link rel="manifest" href="manifest.webmanifest">
   <meta name="theme-color" content="#545b55">
   <meta name="application-name" content="Botanika CR">
@@ -27,6 +27,7 @@
       <div class="nav-menu" id="nav-menu">
         <a href="#inicio" class="nav-link">Inicio</a>
         <a href="#productos" class="nav-link">Catálogo</a>
+        <button type="button" class="nav-link nav-link--button" data-open-trust>Compra con Confianza</button>
         <a href="#contacto" class="nav-link">Contacto</a>
       </div>
 
@@ -64,8 +65,7 @@
                 <p>Descubra maquillaje y skincare cuidadosamente seleccionados para acompañar su rutina diaria.</p>
 
                 <div class="hero-premium-actions">
-                  <a href="#productos" class="button">Ver catálogo</a>
-                  <a href="#productos" class="button outline">Ver productos</a>
+                  <a href="#productos" class="button" data-carousel-filter="all">Ver productos</a>
                 </div>
               </div>
 
@@ -95,7 +95,7 @@
 
                 <div class="hero-premium-actions">
                   <a href="#productos" class="button" data-carousel-filter="new">Ver productos nuevos</a>
-                  <a href="#productos" class="button outline">Ver todo</a>
+                  <a href="#productos" class="button outline" data-carousel-filter="all">Ver todo</a>
                 </div>
               </div>
 
@@ -125,7 +125,7 @@
 
                 <div class="hero-premium-actions">
                   <a href="#productos" class="button" data-carousel-filter="featured">Ver destacados</a>
-                  <a href="#productos" class="button outline">Explorar catálogo</a>
+                  <a href="#productos" class="button outline" data-carousel-filter="all">Explorar catálogo</a>
                 </div>
               </div>
 
@@ -435,6 +435,11 @@
           <i class="bx bx-heart"></i>
           <span>Asesoría cercana y personalizada</span>
         </div>
+
+        <button type="button" class="footer-policy-link" data-open-trust>
+          <i class="bx bx-refresh"></i>
+          Ver cambios y devoluciones
+        </button>
       </div>
 
     </div>
@@ -447,6 +452,72 @@
       </span>
     </div>
   </footer>
+
+  <div id="trust-policy-modal" class="trust-policy" hidden aria-hidden="true">
+    <div class="trust-policy__backdrop" data-close-trust></div>
+
+    <section class="trust-policy__dialog" role="dialog" aria-modal="true" aria-labelledby="trust-policy-title">
+      <button type="button" class="icon-button trust-policy__close" data-close-trust aria-label="Cerrar Compra con Confianza">
+        <i class="bx bx-x"></i>
+      </button>
+
+      <header class="trust-policy__hero">
+        <span class="trust-policy__eyebrow"><i class="bx bx-shield-quarter"></i> Botanika CR</span>
+        <h2 id="trust-policy-title">Compra con Confianza</h2>
+        <p>Queremos que disfrute su compra con tranquilidad. Si surge algún inconveniente, nuestro equipo le acompañará para revisar su caso y brindarle una solución.</p>
+      </header>
+
+      <div class="trust-policy__content">
+        <article class="trust-card trust-card--positive">
+          <span class="trust-card__icon"><i class="bx bx-refresh"></i></span>
+          <div>
+            <h3>Cambios y devoluciones</h3>
+            <p>Podemos revisar solicitudes cuando el producto:</p>
+            <ul>
+              <li><i class="bx bx-check"></i> Llegó dañado o con un defecto.</li>
+              <li><i class="bx bx-check"></i> Es diferente al producto solicitado.</li>
+              <li><i class="bx bx-check"></i> Se mantiene sin uso, sin alteraciones y en su empaque original para solicitudes por preferencia.</li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="trust-card trust-card--neutral">
+          <span class="trust-card__icon"><i class="bx bx-info-circle"></i></span>
+          <div>
+            <h3>Importante</h3>
+            <p>Por razones de higiene y seguridad, los productos abiertos o utilizados no pueden cambiarse por preferencia personal. Si existe un defecto o error en el pedido, contáctenos para revisar el caso.</p>
+          </div>
+        </article>
+
+        <article class="trust-card trust-card--steps">
+          <span class="trust-card__icon"><i class="bx bx-message-rounded-dots"></i></span>
+          <div>
+            <h3>¿Cómo solicitar una revisión?</h3>
+            <ol class="trust-steps">
+              <li><span>1</span><div><strong>Escríbanos por WhatsApp</strong><small>Cuéntenos brevemente qué ocurrió.</small></div></li>
+              <li><span>2</span><div><strong>Comparta fotografías</strong><small>Cuando aplique, incluya imágenes del producto y empaque.</small></div></li>
+              <li><span>3</span><div><strong>Le acompañamos</strong><small>Revisaremos la situación y coordinaremos la alternativa correspondiente.</small></div></li>
+            </ol>
+          </div>
+        </article>
+
+        <aside class="trust-policy__commitment">
+          <i class="bx bx-heart"></i>
+          <div>
+            <strong>Nuestro compromiso</strong>
+            <p>Si tiene dudas antes de comprar, escríbanos. Con gusto le ayudamos a elegir el producto, tono o presentación que mejor se ajuste a lo que busca.</p>
+          </div>
+        </aside>
+
+        <p class="trust-policy__legal">Esta política se aplica sin limitar los derechos que correspondan al consumidor conforme a la normativa aplicable.</p>
+
+        <a class="button trust-policy__whatsapp" href="https://wa.me/50671214468?text=Hola%20Botanika%20CR,%20deseo%20consultar%20sobre%20un%20cambio%20o%20devoluci%C3%B3n." target="_blank" rel="noopener noreferrer">
+          <i class="bx bxl-whatsapp"></i>
+          Consultar por WhatsApp
+        </a>
+      </div>
+    </section>
+  </div>
 
   <div id="overlay" class="overlay" hidden></div>
 
@@ -644,6 +715,12 @@
           </span>
         </div>
 
+        <button type="button" class="modal-policy-link" data-open-trust>
+          <i class="bx bx-shield-quarter"></i>
+          <span><strong>Compra con confianza</strong> · Consulte cambios y devoluciones</span>
+          <i class="bx bx-chevron-right" aria-hidden="true"></i>
+        </button>
+
         <div class="modal-actions modal-actions--premium">
           <button
             id="modal-add-cart"
@@ -695,6 +772,6 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="assets/js/supabase-config.js?v=7.0.0"></script>
-  <script src="assets/js/main.js?v=7.0.0"></script>
+  <script src="assets/js/main.js?v=7.3.0"></script>
 </body>
 </html>

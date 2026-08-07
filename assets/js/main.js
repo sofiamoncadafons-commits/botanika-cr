@@ -4488,15 +4488,11 @@ function initEvents() {
             state.filters.quick =
               filter;
 
-            if (
-              [
-                "new",
-                "featured",
-                "offer"
-              ].includes(filter)
-            ) {
-              resetSecondaryFilters();
-            }
+            // Los botones del carrusel representan accesos directos completos.
+            // Al usarlos se limpian búsqueda, categoría, marca y precio para que
+            // "Ver todo / Explorar catálogo" muestre realmente todo el catálogo
+            // y "Nuevos / Destacados" no queden limitados por filtros previos.
+            resetSecondaryFilters();
 
             state.page =
               1;
@@ -5091,6 +5087,64 @@ function initEvents() {
 }
 
 
+
+
+/*==================================
+  COMPRA CON CONFIANZA · V7.3.0
+==================================*/
+function openTrustPolicy() {
+  const modal = $("#trust-policy-modal");
+  if (!modal) return;
+
+  // Cerrar menú móvil sin interferir con el resto de la navegación.
+  const menu = $("#nav-menu");
+  const toggle = $("#nav-toggle");
+  menu?.classList.remove("show");
+  document.body.classList.remove("menu-open");
+  toggle?.setAttribute("aria-expanded", "false");
+  const toggleIcon = toggle ? $("i", toggle) : null;
+  if (toggleIcon) toggleIcon.className = "bx bx-menu";
+
+  modal.hidden = false;
+  modal.setAttribute("aria-hidden", "false");
+  document.body.classList.add("trust-policy-open");
+
+  requestAnimationFrame(() => {
+    modal.classList.add("is-open");
+    modal.querySelector(".trust-policy__close")?.focus();
+  });
+}
+
+function closeTrustPolicy() {
+  const modal = $("#trust-policy-modal");
+  if (!modal || modal.hidden) return;
+
+  modal.classList.remove("is-open");
+  modal.setAttribute("aria-hidden", "true");
+  document.body.classList.remove("trust-policy-open");
+
+  window.setTimeout(() => {
+    if (!modal.classList.contains("is-open")) modal.hidden = true;
+  }, 230);
+}
+
+function initTrustPolicy() {
+  $$('[data-open-trust]').forEach((button) => {
+    button.addEventListener("click", openTrustPolicy);
+  });
+
+  $$('[data-close-trust]').forEach((button) => {
+    button.addEventListener("click", closeTrustPolicy);
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && !$("#trust-policy-modal")?.hidden) {
+      closeTrustPolicy();
+    }
+  });
+}
+
+
 /*==================================
   INICIAR BOTANIKA
 ==================================*/
@@ -5139,6 +5193,8 @@ renderSkeletonProducts();
   initHeroCarousel();
 
   initEvents();
+
+  initTrustPolicy();
 
   updateCounters();
 
