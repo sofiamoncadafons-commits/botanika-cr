@@ -106,6 +106,7 @@
       price: Number(row.price || 0),
       currency: row.currency || "CRC",
       description: row.description || "",
+      tip: row.tip || "",
       image: row.image_url || FALLBACK_IMAGE,
       available: row.available !== false,
       featured: Boolean(row.featured),
@@ -166,6 +167,7 @@
       price: Number(product.price || 0),
       currency: "CRC",
       description: product.description || "",
+      tip: product.tip || "",
       image_url: product.image || "",
       available: product.available !== false,
       featured: Boolean(product.featured),
@@ -469,6 +471,7 @@
       subcategory: "",
       price: 0,
       description: "",
+      tip: "",
       image: "",
       available: true,
       featured: false,
@@ -494,6 +497,7 @@
         <label class="field"><span>Precio en colones *</span><input name="price" type="number" min="0" step="1" required value="${Number(item.price || 0)}"></label>
         <label class="field"><span>Prioridad</span><input name="priority" type="number" step="1" value="${Number(item.priority || 100)}"><small class="form-note">Los números menores aparecen primero.</small></label>
         <label class="field field--full"><span>Descripción</span><textarea name="description">${escapeHTML(item.description)}</textarea></label>
+        <label class="field field--full"><span>Consejo Botanika</span><textarea name="tip" placeholder="Ejemplo: Para un acabado más uniforme, aplique en capas ligeras.">${escapeHTML(item.tip || "")}</textarea><small class="form-note">Consejo breve que se muestra en el detalle del producto. Si queda vacío, el sitio usa una recomendación general según la categoría.</small></label>
 
         <div class="field field--full">
           <span>Imagen principal</span>
@@ -751,6 +755,7 @@
           subcategory: formValue(form, "subcategory"),
           price: Number(formValue(form, "price") || 0),
           description: formValue(form, "description"),
+          tip: formValue(form, "tip"),
           image,
           available: formChecked(form, "available"),
           new: formChecked(form, "new"),
@@ -978,6 +983,7 @@
       subcategoria: product.subcategory,
       precio: Number(product.price || 0),
       descripcion: product.description,
+      consejo_botanika: product.tip || "",
       imagen: product.image,
       disponible: exportBoolean(product.available),
       nuevo: exportBoolean(product.new),
@@ -1069,9 +1075,9 @@
       summarySheet["!cols"] = [{ wch: 30 }, { wch: 32 }];
 
       const productsSheet = window.XLSX.utils.json_to_sheet(productRows, {
-        header: ["id", "nombre", "marca", "categoria", "subcategoria", "precio", "descripcion", "imagen", "disponible", "nuevo", "destacado", "oferta", "prioridad", "colores", "galeria"]
+        header: ["id", "nombre", "marca", "categoria", "subcategoria", "precio", "descripcion", "consejo_botanika", "imagen", "disponible", "nuevo", "destacado", "oferta", "prioridad", "colores", "galeria"]
       });
-      setSheetLayout(productsSheet, [28, 34, 18, 20, 22, 12, 48, 42, 13, 11, 13, 11, 11, 48, 48], `A1:O${Math.max(1, productRows.length + 1)}`);
+      setSheetLayout(productsSheet, [28, 34, 18, 20, 22, 12, 48, 50, 42, 13, 11, 13, 11, 11, 48, 48], `A1:P${Math.max(1, productRows.length + 1)}`);
 
       const combosSheet = window.XLSX.utils.json_to_sheet(comboRows, {
         header: ["id", "nombre", "subcategoria", "precio", "descripcion", "imagen", "disponible", "nuevo", "destacado", "oferta", "prioridad", "etiqueta", "ideal_para", "beneficios", "modo_uso"]
@@ -1217,6 +1223,7 @@
         price: excelNumber(row.precio ?? row.price, 0),
         currency: "CRC",
         description: String(row.descripcion || row.description || "").trim(),
+        tip: String(row.consejo_botanika || row.tip || row.consejo || "").trim(),
         image: String(row.imagen || row.image || row.image_url || "").trim(),
         available: excelBoolean(row.disponible ?? row.available, true),
         new: excelBoolean(row.nuevo ?? row.new ?? row.is_new, false),

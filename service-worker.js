@@ -1,4 +1,4 @@
-const CACHE_NAME = "botanika-v8.0.2";
+const CACHE_NAME = "botanika-v8.0.7";
 
 const STATIC_ASSETS = [
   "./",

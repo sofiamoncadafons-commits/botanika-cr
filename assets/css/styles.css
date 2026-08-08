@@ -15620,3 +15620,689 @@ body.trust-policy-open{overflow:hidden}
     font-size: .49rem;
   }
 }
+
+
+/* =========================================================
+   BOTANIKA CR v8.0.3 - CONSEJO BOTANIKA
+   ========================================================= */
+.modal-tip {
+  margin: .85rem 0 1rem;
+  border: 1px solid rgba(84, 91, 85, .16);
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(245, 242, 235, .95), rgba(255, 255, 255, .92));
+  overflow: clip;
+}
+
+.modal-tip[hidden] { display: none !important; }
+
+.modal-tip summary {
+  display: grid;
+  grid-template-columns: 42px 1fr 30px;
+  align-items: center;
+  gap: .7rem;
+  padding: .8rem .9rem;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.modal-tip summary::-webkit-details-marker { display: none; }
+
+.modal-tip__icon {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: #545b55;
+  background: rgba(84, 91, 85, .10);
+  font-size: 1.15rem;
+}
+
+.modal-tip__heading {
+  display: flex;
+  flex-direction: column;
+  gap: .08rem;
+  min-width: 0;
+}
+
+.modal-tip__heading small {
+  color: #8b6f62;
+  font-size: .68rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.modal-tip__heading strong {
+  color: #363b37;
+  font-size: .86rem;
+  line-height: 1.25;
+}
+
+.modal-tip__chevron {
+  justify-self: end;
+  color: #6d746e;
+  font-size: 1.15rem;
+  transition: transform .22s ease;
+}
+
+.modal-tip[open] .modal-tip__chevron { transform: rotate(180deg); }
+
+.modal-tip__content {
+  padding: .05rem .95rem .95rem 4.45rem;
+  animation: botanikaTipReveal .2s ease both;
+}
+
+.modal-tip__content p {
+  margin: 0 0 .55rem;
+  color: #505651;
+  font-size: .84rem;
+  line-height: 1.55;
+}
+
+.modal-tip__content > span {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  color: #7b6b63;
+  font-size: .72rem;
+  font-weight: 600;
+}
+
+.modal-tip__content > span i { color: #545b55; }
+
+@keyframes botanikaTipReveal {
+  from { opacity: 0; transform: translateY(-3px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 767px) {
+  .modal-tip {
+    margin: .65rem 0 .8rem;
+    border-radius: 15px;
+  }
+  .modal-tip summary {
+    grid-template-columns: 36px 1fr 24px;
+    gap: .6rem;
+    padding: .7rem .75rem;
+    min-height: 54px;
+  }
+  .modal-tip__icon { width: 34px; height: 34px; font-size: 1rem; }
+  .modal-tip__heading small { font-size: .61rem; }
+  .modal-tip__heading strong { font-size: .78rem; }
+  .modal-tip__content { padding: 0 .75rem .8rem .75rem; }
+  .modal-tip__content p { font-size: .79rem; line-height: 1.48; }
+  .modal-tip__content > span { font-size: .68rem; }
+}
+
+/* =========================================================
+   BOTANIKA CR v8.0.4
+   Modal más compacto + WhatsApp sin recortes + Consejo visible
+   ========================================================= */
+@media (min-width: 901px) {
+  #product-modal .modal-dialog {
+    width: min(880px, 92vw) !important;
+    max-height: min(90dvh, 820px) !important;
+    grid-template-columns: minmax(330px, .88fr) minmax(0, 1.12fr) !important;
+    border-radius: 26px !important;
+  }
+
+  #product-modal .modal-media--gallery {
+    min-height: 560px !important;
+    padding: .9rem !important;
+  }
+
+  #product-modal .modal-image-button {
+    min-height: 430px !important;
+  }
+
+  #product-modal .modal-content--premium {
+    padding: 1.25rem 1.35rem 1.1rem !important;
+  }
+
+  #product-modal .modal-content--premium h2 {
+    font-size: clamp(1.75rem, 2.4vw, 2.25rem) !important;
+  }
+
+  #product-modal .modal-product-meta__item {
+    padding: .52rem .55rem !important;
+  }
+
+  #product-modal .modal-trust--showcase > div {
+    padding: .55rem !important;
+  }
+}
+
+#product-modal .modal-actions--premium {
+  width: 100% !important;
+  min-width: 0 !important;
+  grid-template-columns: minmax(145px, .9fr) minmax(205px, 1.35fr) !important;
+  align-items: stretch !important;
+}
+
+#product-modal .modal-cart-icon,
+#product-modal .modal-whatsapp-button {
+  min-height: 48px !important;
+  box-sizing: border-box !important;
+}
+
+#product-modal .modal-whatsapp-button {
+  display: inline-flex !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  padding: .72rem .85rem !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: .42rem !important;
+  overflow: visible !important;
+  white-space: nowrap !important;
+  text-overflow: clip !important;
+  line-height: 1.1 !important;
+}
+
+#product-modal .modal-whatsapp-button i {
+  flex: 0 0 auto !important;
+  font-size: 1.12rem !important;
+}
+
+#product-modal .modal-tip:not([hidden]) {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+@media (max-width: 900px) {
+  #product-modal .modal-dialog {
+    width: min(720px, 96vw) !important;
+  }
+}
+
+@media (max-width: 520px) {
+  #product-modal .modal-dialog {
+    width: calc(100% - .5rem) !important;
+    max-height: calc(100dvh - .5rem) !important;
+    margin: .25rem !important;
+    border-radius: 18px !important;
+  }
+
+  #product-modal .modal-purchase-row {
+    grid-template-columns: 104px minmax(0,1fr) !important;
+    gap: .45rem !important;
+  }
+
+  #product-modal .modal-actions--premium {
+    grid-template-columns: 46px minmax(0,1fr) !important;
+    gap: .4rem !important;
+  }
+
+  #product-modal .modal-cart-icon {
+    width: 46px !important;
+    min-width: 46px !important;
+    min-height: 46px !important;
+  }
+
+  #product-modal .modal-whatsapp-button {
+    min-height: 46px !important;
+    padding-inline: .55rem !important;
+    font-size: .66rem !important;
+    letter-spacing: -.01em !important;
+  }
+
+  #product-modal .modal-tip {
+    margin: .58rem 0 .7rem !important;
+  }
+}
+
+@media (max-width: 370px) {
+  #product-modal .modal-purchase-row {
+    grid-template-columns: 96px minmax(0,1fr) !important;
+  }
+
+  #product-modal .modal-whatsapp-button {
+    font-size: .61rem !important;
+    padding-inline: .35rem !important;
+  }
+}
+
+/* =========================================================
+   BOTANIKA CR v8.0.5
+   Corrección definitiva: acciones del modal + WhatsApp
+   ========================================================= */
+
+/* El área de compra deja de competir horizontalmente con la cantidad.
+   Esto garantiza ancho real para el CTA de WhatsApp incluso en iPhone. */
+#product-modal .modal-purchase-row {
+  grid-template-columns: 1fr !important;
+  gap: .55rem !important;
+  align-items: stretch !important;
+}
+
+#product-modal .modal-quantity {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: .65rem !important;
+  min-width: 0 !important;
+}
+
+#product-modal .modal-quantity__control {
+  flex: 0 0 auto !important;
+}
+
+/* Acciones: carrito compacto + WhatsApp usando todo el ancho restante. */
+#product-modal .modal-actions--premium {
+  display: grid !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  grid-template-columns: 52px minmax(0, 1fr) !important;
+  gap: .5rem !important;
+  align-items: stretch !important;
+}
+
+#product-modal .modal-cart-icon {
+  width: 52px !important;
+  min-width: 52px !important;
+  max-width: 52px !important;
+  min-height: 48px !important;
+  padding: 0 !important;
+  border-radius: 14px !important;
+}
+
+#product-modal .modal-cart-icon span {
+  display: none !important;
+}
+
+#product-modal .modal-whatsapp-button {
+  display: flex !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  min-height: 48px !important;
+  padding: .72rem .75rem !important;
+  box-sizing: border-box !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: .42rem !important;
+  overflow: visible !important;
+  white-space: nowrap !important;
+  line-height: 1.15 !important;
+  font-size: .76rem !important;
+  text-align: center !important;
+}
+
+#product-modal .modal-whatsapp-button i {
+  flex: 0 0 auto !important;
+  font-size: 1.12rem !important;
+}
+
+/* Modal algo más contenido en escritorio, sin sacrificar el CTA. */
+@media (min-width: 901px) {
+  #product-modal .modal-dialog {
+    width: min(820px, 90vw) !important;
+    grid-template-columns: minmax(315px, .9fr) minmax(0, 1.1fr) !important;
+  }
+
+  #product-modal .modal-quantity {
+    justify-content: flex-start !important;
+  }
+
+  #product-modal .modal-quantity > span {
+    min-width: 62px !important;
+  }
+}
+
+/* iPhone / móviles: acciones verdaderamente a ancho completo. */
+@media (max-width: 520px) {
+  #product-modal .modal-purchase-row {
+    margin-inline: -.85rem !important;
+    padding: .6rem .85rem calc(.55rem + env(safe-area-inset-bottom)) !important;
+    grid-template-columns: 1fr !important;
+    gap: .45rem !important;
+  }
+
+  #product-modal .modal-quantity {
+    justify-content: flex-end !important;
+  }
+
+  #product-modal .modal-quantity > span {
+    display: none !important;
+  }
+
+  #product-modal .modal-actions--premium {
+    grid-template-columns: 48px minmax(0, 1fr) !important;
+    gap: .45rem !important;
+  }
+
+  #product-modal .modal-cart-icon {
+    width: 48px !important;
+    min-width: 48px !important;
+    max-width: 48px !important;
+    min-height: 48px !important;
+  }
+
+  #product-modal .modal-whatsapp-button {
+    min-height: 48px !important;
+    padding-inline: .65rem !important;
+    font-size: .74rem !important;
+    letter-spacing: 0 !important;
+  }
+}
+
+/* En pantallas extremadamente angostas permitimos dos líneas antes que recortar. */
+@media (max-width: 340px) {
+  #product-modal .modal-whatsapp-button {
+    white-space: normal !important;
+    min-height: 50px !important;
+    padding-block: .5rem !important;
+    font-size: .7rem !important;
+  }
+}
+
+
+/* =========================================================
+   BOTANIKA CR v8.0.6
+   Refinamiento visual del área de compra del modal
+   ========================================================= */
+#product-modal .modal-purchase-row {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: .72rem !important;
+  margin-top: .85rem !important;
+  padding: .9rem !important;
+  border: 1px solid rgba(84,91,85,.11) !important;
+  border-radius: 18px !important;
+  background: linear-gradient(180deg, rgba(250,248,245,.96), rgba(255,255,255,.98)) !important;
+  box-shadow: 0 10px 24px rgba(54,49,46,.055) !important;
+}
+
+#product-modal .modal-quantity {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: .75rem !important;
+  margin: 0 !important;
+}
+
+#product-modal .modal-quantity > span {
+  display: inline-block !important;
+  color: #5f625e !important;
+  font-size: .72rem !important;
+  font-weight: 700 !important;
+  letter-spacing: .04em !important;
+  text-transform: uppercase !important;
+}
+
+#product-modal .modal-quantity__control {
+  min-height: 42px !important;
+  padding: 3px !important;
+  border: 1px solid rgba(84,91,85,.14) !important;
+  border-radius: 14px !important;
+  background: #fff !important;
+  box-shadow: 0 4px 12px rgba(54,49,46,.045) !important;
+}
+
+#product-modal .modal-quantity__control button {
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: 11px !important;
+}
+
+#product-modal .modal-actions--premium {
+  display: flex !important;
+  width: 100% !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: .62rem !important;
+  margin: 0 !important;
+}
+
+/* Acción principal: carrito. */
+#product-modal .modal-cart-icon {
+  display: inline-flex !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  min-height: 48px !important;
+  padding: .72rem 1rem !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: .5rem !important;
+  border-radius: 14px !important;
+  white-space: nowrap !important;
+}
+
+#product-modal .modal-cart-icon span {
+  display: inline !important;
+}
+
+/* Acción secundaria: más ligera y proporcionada. */
+#product-modal .modal-whatsapp-button {
+  display: inline-flex !important;
+  width: min(74%, 300px) !important;
+  min-width: 220px !important;
+  max-width: 300px !important;
+  min-height: 43px !important;
+  padding: .58rem .9rem !important;
+  box-sizing: border-box !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: .42rem !important;
+  border: 1.5px solid #2f8f58 !important;
+  border-radius: 14px !important;
+  color: #25784a !important;
+  background: #fff !important;
+  box-shadow: none !important;
+  font-size: .75rem !important;
+  font-weight: 700 !important;
+  line-height: 1.2 !important;
+  white-space: nowrap !important;
+  text-align: center !important;
+  transition: transform .2s ease, background-color .2s ease, color .2s ease, box-shadow .2s ease !important;
+}
+
+#product-modal .modal-whatsapp-button:hover {
+  color: #fff !important;
+  background: #2f8f58 !important;
+  box-shadow: 0 8px 18px rgba(47,143,88,.16) !important;
+  transform: translateY(-1px) !important;
+}
+
+#product-modal .modal-whatsapp-button i {
+  flex: 0 0 auto !important;
+  font-size: 1.08rem !important;
+}
+
+#product-modal .modal-policy-link--compact {
+  display: grid !important;
+  width: 100% !important;
+  margin-top: .65rem !important;
+  padding: .68rem .78rem !important;
+  grid-template-columns: auto minmax(0,1fr) auto !important;
+  align-items: center !important;
+  gap: .58rem !important;
+  border: 1px solid rgba(84,91,85,.10) !important;
+  border-radius: 14px !important;
+  background: rgba(246,244,240,.58) !important;
+  text-align: left !important;
+}
+
+#product-modal .modal-policy-link--compact > span {
+  display: grid !important;
+  gap: .08rem !important;
+  min-width: 0 !important;
+}
+
+#product-modal .modal-policy-link--compact strong {
+  color: #4f5751 !important;
+  font-size: .73rem !important;
+}
+
+#product-modal .modal-policy-link--compact small {
+  color: #777a76 !important;
+  font-size: .66rem !important;
+  line-height: 1.25 !important;
+}
+
+@media (max-width: 520px) {
+  #product-modal .modal-purchase-row {
+    margin-inline: 0 !important;
+    padding: .75rem !important;
+    gap: .62rem !important;
+    border-radius: 16px !important;
+  }
+
+  #product-modal .modal-quantity {
+    justify-content: space-between !important;
+  }
+
+  #product-modal .modal-quantity > span {
+    display: inline-block !important;
+  }
+
+  #product-modal .modal-actions--premium {
+    gap: .55rem !important;
+  }
+
+  #product-modal .modal-cart-icon {
+    min-height: 47px !important;
+    border-radius: 13px !important;
+    font-size: .78rem !important;
+  }
+
+  #product-modal .modal-whatsapp-button {
+    width: min(82%, 285px) !important;
+    min-width: 0 !important;
+    max-width: 285px !important;
+    min-height: 42px !important;
+    padding-inline: .75rem !important;
+    border-radius: 13px !important;
+    font-size: .72rem !important;
+  }
+
+  #product-modal .modal-policy-link--compact {
+    margin-top: .55rem !important;
+    padding: .64rem .7rem !important;
+  }
+}
+
+@media (max-width: 360px) {
+  #product-modal .modal-whatsapp-button {
+    width: 88% !important;
+    white-space: normal !important;
+    min-height: 44px !important;
+    padding-block: .5rem !important;
+  }
+}
+
+/* =========================================================
+   BOTANIKA CR v8.0.7 - Acciones del modal equilibradas
+   Mantiene ambos botones a la par, mismo tamaño y proporción.
+   ========================================================= */
+#product-modal .modal-actions--premium {
+  display: grid !important;
+  width: 100% !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  align-items: stretch !important;
+  gap: .55rem !important;
+  margin: 0 !important;
+}
+
+#product-modal .modal-cart-icon,
+#product-modal .modal-whatsapp-button {
+  display: inline-flex !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  height: 44px !important;
+  min-height: 44px !important;
+  padding: .52rem .68rem !important;
+  box-sizing: border-box !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: .38rem !important;
+  border-radius: 12px !important;
+  font-size: .72rem !important;
+  font-weight: 700 !important;
+  line-height: 1.08 !important;
+  text-align: center !important;
+  white-space: normal !important;
+}
+
+#product-modal .modal-cart-icon {
+  border: 1.5px solid #545b55 !important;
+  color: #fff !important;
+  background: #545b55 !important;
+  box-shadow: 0 5px 13px rgba(84,91,85,.13) !important;
+}
+
+#product-modal .modal-cart-icon:hover:not(:disabled) {
+  color: #fff !important;
+  background: #454c46 !important;
+  border-color: #454c46 !important;
+  transform: translateY(-1px) !important;
+}
+
+#product-modal .modal-whatsapp-button {
+  border: 1.5px solid #4f8a67 !important;
+  color: #3f7758 !important;
+  background: #fff !important;
+  box-shadow: 0 5px 13px rgba(63,119,88,.07) !important;
+}
+
+#product-modal .modal-whatsapp-button:hover {
+  color: #fff !important;
+  background: #4f8a67 !important;
+  border-color: #4f8a67 !important;
+  box-shadow: 0 6px 14px rgba(79,138,103,.14) !important;
+  transform: translateY(-1px) !important;
+}
+
+#product-modal .modal-cart-icon i,
+#product-modal .modal-whatsapp-button i {
+  flex: 0 0 auto !important;
+  font-size: 1rem !important;
+}
+
+#product-modal .modal-cart-icon span,
+#product-modal .modal-whatsapp-button span {
+  display: block !important;
+  min-width: 0 !important;
+}
+
+@media (max-width: 520px) {
+  #product-modal .modal-actions--premium {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: .45rem !important;
+  }
+
+  #product-modal .modal-cart-icon,
+  #product-modal .modal-whatsapp-button {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    height: 43px !important;
+    min-height: 43px !important;
+    padding: .45rem .5rem !important;
+    border-radius: 11px !important;
+    font-size: .68rem !important;
+    letter-spacing: -.01em !important;
+  }
+}
+
+@media (max-width: 360px) {
+  #product-modal .modal-actions--premium {
+    gap: .38rem !important;
+  }
+
+  #product-modal .modal-cart-icon,
+  #product-modal .modal-whatsapp-button {
+    height: 46px !important;
+    min-height: 46px !important;
+    padding-inline: .38rem !important;
+    font-size: .64rem !important;
+    line-height: 1.05 !important;
+  }
+}

@@ -211,6 +211,7 @@ function productSearchText(product = {}) {
       product.category,
       product.subcategory,
       product.description,
+      product.tip,
       productColorText(product),
       tags,
       product.keywords,
@@ -523,6 +524,7 @@ function mapDatabaseProduct(row = {}) {
     price: Number(row.price || 0),
     currency: row.currency || "CRC",
     description: row.description || "",
+    tip: row.tip || "",
     image: row.image_url || CONFIG.fallbackImage,
     available: row.available !== false,
     featured: Boolean(row.featured),
@@ -2490,6 +2492,66 @@ function renderModalCombo(product) {
   section.hidden = false;
 }
 
+function defaultBotanikaTip(product = {}) {
+  const subcategory = normalize(product.subcategory || "");
+  const category = normalize(product.category || "");
+
+  if (subcategory.includes("base") || subcategory.includes("corrector")) {
+    return "Para un acabado más uniforme, prepare e hidrate la piel antes de aplicar el producto y difumine en capas ligeras.";
+  }
+
+  if (subcategory.includes("rubor") || subcategory.includes("iluminador")) {
+    return "Aplique poca cantidad y construya el color gradualmente. Difumine hacia arriba para lograr un acabado más natural.";
+  }
+
+  if (subcategory.includes("labial")) {
+    return "Exfolie e hidrate los labios antes de aplicar. Para mayor duración, retire el exceso y aplique una segunda capa ligera.";
+  }
+
+  if (category.includes("skincare")) {
+    return "Introduzca los productos nuevos de forma gradual y mantenga una rutina constante. Durante el día, finalice con protección solar.";
+  }
+
+  if (category.includes("cabello")) {
+    return "Distribuya el producto de medios a puntas y ajuste la cantidad según la textura y densidad de su cabello.";
+  }
+
+  if (category.includes("cuidado corporal")) {
+    return "Aplique sobre la piel limpia y ligeramente húmeda para ayudar a conservar mejor la hidratación.";
+  }
+
+  return "Use una pequeña cantidad al inicio y ajuste según el resultado deseado. Si tiene dudas, escríbanos y con gusto le asesoramos.";
+}
+
+function renderBotanikaTip(product) {
+  const container = $("#modal-tip");
+  const text = $("#modal-tip-text");
+
+  if (!container || !text) return;
+
+  if (isCombo(product)) {
+    container.hidden = true;
+    container.removeAttribute("open");
+    return;
+  }
+
+  const personalizedTip = String(
+    product.tip ||
+    product.consejo_botanika ||
+    product.botanika_tip ||
+    ""
+  ).trim();
+
+  const tip = personalizedTip || defaultBotanikaTip(product);
+
+  text.textContent = tip;
+  container.hidden = false;
+  container.removeAttribute("hidden");
+  container.style.removeProperty("display");
+  container.open = window.matchMedia("(min-width: 900px)").matches;
+}
+
+
 function openModal(id) {
   const product =
     productById(id);
@@ -2649,6 +2711,8 @@ function openModal(id) {
   }
 
   renderModalCombo(product);
+
+  renderBotanikaTip(product);
 
   renderModalGallery(
     product,
